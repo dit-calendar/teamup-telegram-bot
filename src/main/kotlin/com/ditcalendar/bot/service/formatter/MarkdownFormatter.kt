@@ -1,4 +1,4 @@
-package com.ditcalendar.bot.formatter
+package com.ditcalendar.bot.service.formatter
 
 import com.ditcalendar.bot.config.bot_name
 import com.ditcalendar.bot.config.config

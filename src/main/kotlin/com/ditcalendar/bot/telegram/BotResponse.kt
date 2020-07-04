@@ -1,7 +1,7 @@
-package com.ditcalendar.bot.service
+package com.ditcalendar.bot.telegram
 
 import com.ditcalendar.bot.data.core.Base
-import com.ditcalendar.bot.formatter.parseResponse
+import com.ditcalendar.bot.service.formatter.parseResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.CallbackQuery
 import com.elbekD.bot.types.InlineKeyboardButton
@@ -28,8 +28,8 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
         is WithMessage -> {
             response.failure { answerCallbackQuery(callbackQuery.id, result.message, alert = true) }
             response.success {
-                if(result.callbackNotificationText != null)
-                answerCallbackQuery(callbackQuery.id, result.callbackNotificationText)
+                if (result.callbackNotificationText != null)
+                    answerCallbackQuery(callbackQuery.id, result.callbackNotificationText)
                 editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
                         parseMode = "MarkdownV2")
             }
@@ -43,19 +43,3 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
         }
     }
 }
-
-sealed class TelegramResponse(val message: String, val callbackNotificationText: String?)
-class WithMessage(message: String, callbackNotificationText: String?) : TelegramResponse(message, callbackNotificationText)
-class WithInline(message: String, val callBackText: String, val callBackData: String,
-                 callbackNotificationText: String?) : TelegramResponse(message, callbackNotificationText)
-
-
-
-inline fun checkGlobalStateBeforeHandling(msgId: String, requestHandling: () -> Unit) {
-    if (globalStateForFirstMessage == null || globalStateForFirstMessage != msgId) {
-        globalStateForFirstMessage = msgId
-        requestHandling()
-    }
-}
-
-var globalStateForFirstMessage: String? = null

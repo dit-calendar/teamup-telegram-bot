@@ -2,8 +2,14 @@ package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.data.TelegramLink
-import com.ditcalendar.bot.error.InvalidRequest
+import com.ditcalendar.bot.endpoint.CalendarEndpoint
+import com.ditcalendar.bot.endpoint.EventEndpoint
+import com.ditcalendar.bot.data.InvalidRequest
 import com.ditcalendar.bot.service.*
+import com.ditcalendar.bot.telegram.CommandExecution
+import com.ditcalendar.bot.telegram.callbackResponse
+import com.ditcalendar.bot.telegram.checkGlobalStateBeforeHandling
+import com.ditcalendar.bot.telegram.messageResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
 import com.elbekD.bot.types.InlineKeyboardButton
@@ -25,7 +31,7 @@ fun main(args: Array<String>) {
 
     val token = config[telegram_token]
     val herokuApp = config[heroku_app_name]
-    val calendarService = DitCalendarService()
+    val commandExecution = CommandExecution(CalendarService(CalendarEndpoint(), EventEndpoint()))
 
     val bot = if (config[webhook_is_enabled]) {
         Bot.createWebhook(config[bot_name], token) {
@@ -51,7 +57,7 @@ fun main(args: Array<String>) {
             } else {
                 val msgUser = callbackQuery.from
                 val telegramLink = TelegramLink(originallyMessage.chat.id, msgUser.id, msgUser.username, msgUser.first_name)
-                val response = calendarService.executeCallback(telegramLink, request)
+                val response = commandExecution.executeCallback(telegramLink, request)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
             }
@@ -95,7 +101,7 @@ fun main(args: Array<String>) {
     fun postCalendarCommand(msg: Message, opts: String?) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
-            val response = calendarService.executePublishCalendarCommand(opts)
+            val response = commandExecution.executePublishCalendarCommand(opts)
             bot.messageResponse(response, msg)
         }
     }

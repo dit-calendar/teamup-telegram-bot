@@ -1,19 +1,14 @@
-package com.ditcalendar.bot.formatter
+package com.ditcalendar.bot.service.formatter
 
-import com.ditcalendar.bot.data.SubCalendar
-import com.ditcalendar.bot.data.TelegramTaskAfterUnassignment
-import com.ditcalendar.bot.data.TelegramTaskForAssignment
-import com.ditcalendar.bot.data.TelegramTaskForUnassignment
+import com.ditcalendar.bot.data.*
 import com.ditcalendar.bot.data.core.Base
-import com.ditcalendar.bot.error.*
-import com.ditcalendar.bot.service.TelegramResponse
-import com.ditcalendar.bot.service.WithInline
-import com.ditcalendar.bot.service.WithMessage
 import com.ditcalendar.bot.service.reloadCallbackCommand
+import com.ditcalendar.bot.telegram.TelegramResponse
+import com.ditcalendar.bot.telegram.WithInline
+import com.ditcalendar.bot.telegram.WithMessage
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.result.Result
 import kotlinx.serialization.json.JsonDecodingException
-import java.util.*
 
 fun parseResponse(result: Result<Base, Exception>): TelegramResponse =
         when (result) {

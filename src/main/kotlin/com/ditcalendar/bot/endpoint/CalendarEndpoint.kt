@@ -6,8 +6,8 @@ import com.ditcalendar.bot.config.teamup_token
 import com.ditcalendar.bot.config.teamup_url
 import com.ditcalendar.bot.data.SubCalendar
 import com.ditcalendar.bot.data.Subcalendars
-import com.ditcalendar.bot.error.MultipleSubcalendarsFound
-import com.ditcalendar.bot.error.NoSubcalendarFound
+import com.ditcalendar.bot.data.MultipleSubcalendarsFound
+import com.ditcalendar.bot.data.NoSubcalendarFound
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.responseObject
 import com.github.kittinunf.result.Result
