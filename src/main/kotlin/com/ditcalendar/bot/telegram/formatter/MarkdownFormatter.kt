@@ -1,4 +1,4 @@
-package com.ditcalendar.bot.service.formatter
+package com.ditcalendar.bot.telegram.formatter
 
 import com.ditcalendar.bot.config.bot_name
 import com.ditcalendar.bot.config.config
@@ -24,8 +24,8 @@ fun TelegramTaskAssignment.toMarkdown(): String =
 
             is TelegramTaskForUnassignment -> {
                 val formattedDescription =
-                        if (task.notes.isNotBlank())
-                            System.lineSeparator() + task.notes.withMDEscape()
+                        if (task.notes!!.isNotBlank())
+                            System.lineSeparator() + task.notes!!.withMDEscape()
                         else ""
                 "*erfolgreich hinzugefügt:*" + System.lineSeparator() +
                         "*${formatter.format(task.startDate.time)} Uhr* \\- ${task.title.withMDEscape()}$formattedDescription" + System.lineSeparator() +

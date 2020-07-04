@@ -1,4 +1,4 @@
-package com.ditcalendar.bot.telegram
+package com.ditcalendar.bot.data
 
 sealed class TelegramResponse(val message: String, val callbackNotificationText: String?)
 class WithMessage(message: String, callbackNotificationText: String?) : TelegramResponse(message, callbackNotificationText)

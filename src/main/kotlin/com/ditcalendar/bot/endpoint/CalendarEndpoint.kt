@@ -4,10 +4,10 @@ import com.ditcalendar.bot.config.config
 import com.ditcalendar.bot.config.teamup_calendar_key
 import com.ditcalendar.bot.config.teamup_token
 import com.ditcalendar.bot.config.teamup_url
-import com.ditcalendar.bot.data.SubCalendar
-import com.ditcalendar.bot.data.Subcalendars
 import com.ditcalendar.bot.data.MultipleSubcalendarsFound
 import com.ditcalendar.bot.data.NoSubcalendarFound
+import com.ditcalendar.bot.data.SubCalendar
+import com.ditcalendar.bot.data.Subcalendars
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.responseObject
 import com.github.kittinunf.result.Result
@@ -27,18 +27,20 @@ class CalendarEndpoint {
 
     fun findSubcalendar(subCalendarName: String): Result<SubCalendar, Exception> {
 
-        val subcalendars = "$teamupUrl/calendarentries/$teamupCalendarKey/subcalendars"
+        val subcalendars = "$teamupUrl/$teamupCalendarKey/subcalendars"
                 .httpGet()
                 .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
                 .responseObject(loader = Subcalendars.serializer(), json = json)
                 .third
 
-        return subcalendars.map {
-            return when {
-                it.subcalendars.isEmpty() -> Result.error(NoSubcalendarFound(subCalendarName))
-                it.subcalendars.size != 1 -> Result.error(MultipleSubcalendarsFound())
-                else -> Result.success(it.subcalendars[0])
-            }
-        }
+        return subcalendars
+                .map { it.subcalendars.filter { calendar -> calendar.name == subCalendarName } }
+                .map {
+                    return when {
+                        it.isEmpty() -> Result.error(NoSubcalendarFound(subCalendarName))
+                        it.size != 1 -> Result.error(MultipleSubcalendarsFound())
+                        else -> Result.success(it[0])
+                    }
+                }
     }
 }

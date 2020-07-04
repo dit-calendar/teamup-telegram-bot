@@ -1,11 +1,11 @@
-package com.ditcalendar.bot.service.formatter
+package com.ditcalendar.bot.telegram.formatter
 
 import com.ditcalendar.bot.data.*
 import com.ditcalendar.bot.data.core.Base
 import com.ditcalendar.bot.service.reloadCallbackCommand
-import com.ditcalendar.bot.telegram.TelegramResponse
-import com.ditcalendar.bot.telegram.WithInline
-import com.ditcalendar.bot.telegram.WithMessage
+import com.ditcalendar.bot.data.TelegramResponse
+import com.ditcalendar.bot.data.WithInline
+import com.ditcalendar.bot.data.WithMessage
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.result.Result
 import kotlinx.serialization.json.JsonDecodingException
@@ -51,10 +51,10 @@ private fun parseError(error: Exception): TelegramResponse =
             }
             is DitBotError -> {
                 when (error) {
-                    is InvalidRequest -> "incorrect request to server"
+                    is InvalidRequest -> error.message!!
                     is ServerNotReachable -> "server need to startup, try again"
-                    is NoSubcalendarFound -> TODO()
-                    is MultipleSubcalendarsFound -> TODO()
+                    is NoSubcalendarFound -> error.message!!
+                    is MultipleSubcalendarsFound -> error.message!!
                 }
             }
             else -> "unknown error"
