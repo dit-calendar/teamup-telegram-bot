@@ -1,0 +1,21 @@
+{
+  "name": "Teamup Telegram Bot",
+  "description": "Telegram Bot for task assignment on teamup calendar",
+  "repository": "https://github.com/dit-calendar/teamup-telegram-bot",
+  "keywords": [
+    "dit",
+    "telegram-bot",
+    "teamup"
+  ],
+  "env": {
+    "HEROKU_APP_NAME": {
+      "description": "enter the heroku App name here again"
+    },
+    "TELEGRAM_TOKEN": {
+      "description": "telegram token you got from Botfather"
+    },
+    "BOT_NAME": {
+      "description": "username of your telegram bot. Without '@'"
+    }
+  }
+}
