@@ -1,4 +1,4 @@
-# dit-calendar-bot [![Build Status](https://travis-ci.org/dit-calendar/dit-calendar-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/dit-calendar-bot)
+# teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/dit-calendar-bot)
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/dit-calendar/teamup-telegram-bot/tree/master)
 
