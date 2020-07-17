@@ -9,7 +9,11 @@ data class SubCalendar(var id: Int,
                        var name: String,
                        var readonly: Boolean,
                        @Transient
-                       var tasks: List<TelegramTaskForAssignment> = listOf()) : Base()
+                       var tasks: List<TelegramTaskForAssignment> = listOf(),
+                       @Transient
+                       var startDate: String? = null,
+                       @Transient
+                       var endDate: String? = null) : Base()
 
 @Serializable
 data class Subcalendars(var subcalendars: List<SubCalendar>)

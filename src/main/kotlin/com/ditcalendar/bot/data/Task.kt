@@ -29,7 +29,9 @@ class Task(var id: String,
            var startDate: Date,
            @SerialName("end_dt")
            @Serializable(with = DateSerializer::class)
-           var endDate: Date) : Base()
+           var endDate: Date,
+           @Serializable(with = DateSerializer::class)
+           var ristart_dt: Date?) : Base()
 
 
 @Serializable

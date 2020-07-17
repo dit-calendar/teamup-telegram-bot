@@ -1,11 +1,13 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
+import com.ditcalendar.bot.data.InvalidRequest
 import com.ditcalendar.bot.data.TelegramLink
 import com.ditcalendar.bot.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.endpoint.EventEndpoint
-import com.ditcalendar.bot.data.InvalidRequest
-import com.ditcalendar.bot.service.*
+import com.ditcalendar.bot.service.CalendarService
+import com.ditcalendar.bot.service.assingAnnonCallbackCommand
+import com.ditcalendar.bot.service.assingWithNameCallbackCommand
 import com.ditcalendar.bot.telegram.CommandExecution
 import com.ditcalendar.bot.telegram.callbackResponse
 import com.ditcalendar.bot.telegram.checkGlobalStateBeforeHandling

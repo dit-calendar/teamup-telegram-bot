@@ -21,12 +21,12 @@ class CommandExecution(private val calendarService: CalendarService) {
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(reloadCallbackCommand)) {
                 val variables = callbaBackData.substringAfter("_").split("_")
-                val subCalendarName = variables.getOrNull(0)
+                val subCalendarId = variables.getOrNull(0)?.toInt()
                 val startDate = variables.getOrNull(1)
                 val endDate = variables.getOrNull(2)
 
-                if (subCalendarName != null && startDate != null && endDate != null)
-                    calendarService.getCalendarAndTask(subCalendarName, startDate, endDate)
+                if (subCalendarId != null && startDate != null && endDate != null)
+                    calendarService.getCalendarAndTask(subCalendarId, startDate, endDate)
                 else
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(assingWithNameCallbackCommand)) {
@@ -53,14 +53,14 @@ class CommandExecution(private val calendarService: CalendarService) {
 
             if (subCalendarName != null && startDateString != null) {
                 val df: DateFormat = SimpleDateFormat("yyyy-MM-dd")
-                val checkDateInput = Result.of<Unit, Exception>{
+                val checkDateInput = Result.of<Unit, Exception> {
                     df.parse(startDateString)
-                    if(endDateString != null) df.parse(endDateString)
+                    if (endDateString != null) df.parse(endDateString)
                 }
                 when (checkDateInput) {
                     is Result.Failure -> Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
                     is Result.Success -> {
-                        if(endDateString == null) { // use next day (after midnight)
+                        if (endDateString == null) { // use next day (after midnight)
                             val c = Calendar.getInstance()
                             c.time = df.parse(startDateString)
                             c.add(Calendar.DATE, 1)
@@ -69,8 +69,7 @@ class CommandExecution(private val calendarService: CalendarService) {
                         calendarService.getCalendarAndTask(subCalendarName, startDateString, endDateString!!)
                     }
                 }
-            }
-            else
+            } else
                 Result.error(InvalidRequest())
         } else
             Result.error(InvalidRequest())

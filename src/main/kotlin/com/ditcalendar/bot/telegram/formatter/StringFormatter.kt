@@ -3,9 +3,6 @@ package com.ditcalendar.bot.telegram.formatter
 import com.ditcalendar.bot.data.*
 import com.ditcalendar.bot.data.core.Base
 import com.ditcalendar.bot.service.reloadCallbackCommand
-import com.ditcalendar.bot.data.TelegramResponse
-import com.ditcalendar.bot.data.WithInline
-import com.ditcalendar.bot.data.WithMessage
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.result.Result
 import kotlinx.serialization.json.JsonDecodingException
@@ -22,7 +19,7 @@ fun parseResponse(result: Result<Base, Exception>): TelegramResponse =
 private fun parseSuccess(result: Base): TelegramResponse =
         when (result) {
             is SubCalendar ->
-                WithInline(result.toMarkdown() + System.lineSeparator(), "reload", "$reloadCallbackCommand${result.id}", "calendar wurde neugeladen")
+                WithInline(result.toMarkdown() + System.lineSeparator(), "reload", "$reloadCallbackCommand${result.id}_${result.startDate}_${result.endDate}", "calendar wurde neugeladen")
             is TelegramTaskForUnassignment ->
                 WithInline(result.toMarkdown(),
                         "unassign me", "unassign_${result.task.id}", null)

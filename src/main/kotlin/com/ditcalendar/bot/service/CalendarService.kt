@@ -15,19 +15,13 @@ const val assingAnnonCallbackCommand = "assignmeAnnon_"
 class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                       private val eventEndpoint: EventEndpoint) {
 
+    fun getCalendarAndTask(subCalendarName: String, startDate: String, endDate: String): Result<SubCalendar, Exception> =
+            calendarEndpoint.findSubcalendar(subCalendarName)
+                    .fillCalendar(startDate, endDate)
 
-    fun getCalendarAndTask(subCalendarName: String, startDate: String, endDate: String): Result<SubCalendar, Exception> {
-        val calendarResult = calendarEndpoint.findSubcalendar(subCalendarName)
-
-        return calendarResult.flatMap { calendar: SubCalendar ->
-            val tasksResulst = eventEndpoint.findEvents(calendar.id, startDate, endDate)
-            tasksResulst.map {
-                calendar.apply { tasks = it.events
-                        .map { task -> TelegramTaskForAssignment(task, listOf()) } //TODO build telegramLinks from task.who
-                }
-            }
-        }
-    }
+    fun getCalendarAndTask(id: Int, startDate: String, endDate: String): Result<SubCalendar, Exception> =
+            calendarEndpoint.findSubcalendar(id)
+                    .fillCalendar(startDate, endDate)
 
     fun assignUserToTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskForUnassignment, Exception> =
             eventEndpoint.getEvent(taskId)
@@ -44,4 +38,17 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                         eventEndpoint.updateEvent(task)
                                 .map { TelegramTaskAfterUnassignment(it, listOf()) }
                     }
+
+    private fun Result<SubCalendar, Exception>.fillCalendar(startDate: String, endDate: String) =
+            this.flatMap { calendar: SubCalendar ->
+                val tasksResulst = eventEndpoint.findEvents(calendar.id, startDate, endDate)
+                tasksResulst.map {
+                    calendar.apply {
+                        this.startDate = startDate
+                        this.endDate = endDate
+                        this.tasks = it.events
+                                .map { task -> TelegramTaskForAssignment(task, listOf()) } //TODO build telegramLinks from task.who
+                    }
+                }
+            }
 }

@@ -12,6 +12,7 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.responseObject
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.map
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 
@@ -24,6 +25,14 @@ class CalendarEndpoint {
     private val teamupUrl = config[teamup_url]
     private val teamupToken = config[teamup_token]
     private val teamupCalendarKey = config[teamup_calendar_key]
+
+    fun findSubcalendar(id: Int): Result<SubCalendar, Exception> =
+            "$teamupUrl/$teamupCalendarKey/subcalendars/$id"
+                    .httpGet()
+                    .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
+                    .responseObject(loader = Subcalendar.serializer(), json = json)
+                    .third
+                    .map { it.subcalendar }
 
     fun findSubcalendar(subCalendarName: String): Result<SubCalendar, Exception> {
 
@@ -43,4 +52,8 @@ class CalendarEndpoint {
                     }
                 }
     }
+
+    //Wrapper
+    @Serializable
+    private data class Subcalendar(val subcalendar: SubCalendar)
 }

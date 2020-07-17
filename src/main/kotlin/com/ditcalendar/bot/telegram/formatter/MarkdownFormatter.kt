@@ -23,10 +23,10 @@ fun TelegramTaskAssignment.toMarkdown(): String =
                 """.trimIndent()
 
             is TelegramTaskForUnassignment -> {
-                val formattedDescription =
-                        if (task.notes!!.isNotBlank())
-                            System.lineSeparator() + task.notes!!.withMDEscape()
-                        else ""
+                val formattedDescription = ""
+                /*if (task.notes!!.isNotBlank())
+                    System.lineSeparator() + task.notes!!.withMDEscape()
+                else ""*/
                 "*erfolgreich hinzugefügt:*" + System.lineSeparator() +
                         "*${formatter.format(task.startDate.time)} Uhr* \\- ${task.title.withMDEscape()}$formattedDescription" + System.lineSeparator() +
                         "Wer?: ${assignedUsers.toMarkdown()}"
