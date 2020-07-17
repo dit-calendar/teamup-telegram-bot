@@ -7,6 +7,9 @@
     "telegram-bot",
     "teamup"
   ],
+  "addons": [
+    "heroku-postgresql"
+  ],
   "env": {
     "HEROKU_APP_NAME": {
       "description": "enter the heroku App name here again"

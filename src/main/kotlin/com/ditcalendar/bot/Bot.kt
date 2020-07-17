@@ -18,6 +18,8 @@ import com.elbekD.bot.types.InlineKeyboardButton
 import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
+import org.jetbrains.exposed.sql.Database
+import java.net.URI
 
 val helpMessage =
         """
@@ -28,6 +30,7 @@ val helpMessage =
 
 fun main(args: Array<String>) {
 
+    createDB()
 
     val config by config()
 
@@ -119,4 +122,14 @@ fun main(args: Array<String>) {
     }
 
     bot.start()
+}
+
+fun createDB() {
+    val dbUri = URI(System.getenv("DATABASE_URL"));
+    val username = dbUri.userInfo.split(":")[0];
+    val password = dbUri.userInfo.split(":")[1];
+    val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require";
+
+    Database.connect(dbUrl, driver = "org.postgresql.Driver",
+            user = username, password = password)
 }
