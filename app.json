@@ -19,6 +19,9 @@
     },
     "BOT_NAME": {
       "description": "username of your telegram bot. Without '@'"
+    },
+    "TEAMUP_CALENDAR_KEY": {
+      "description": "last part of your teamup calendar url. e.g. xxxxxXXXxxxxXX for https://teamup.com/xxxxxXXXxxxxXX"
     }
   }
 }
