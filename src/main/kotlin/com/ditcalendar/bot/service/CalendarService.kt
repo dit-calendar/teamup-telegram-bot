@@ -22,7 +22,9 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
         return calendarResult.flatMap { calendar: SubCalendar ->
             val tasksResulst = eventEndpoint.findEvents(calendar.id, startDate, endDate)
             tasksResulst.map {
-                calendar.apply { tasks = it.events.map { task -> TelegramTaskForAssignment(task, null!!) } } //TODO build telegramLinks from task.who
+                calendar.apply { tasks = it.events
+                        .map { task -> TelegramTaskForAssignment(task, listOf()) } //TODO build telegramLinks from task.who
+                }
             }
         }
     }
@@ -32,7 +34,7 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                     .flatMap { task ->
                         task.apply { who = "" } //TODO build telegramLinks from string
                         eventEndpoint.updateEvent(task)
-                                .map { TelegramTaskForUnassignment(it, null!!) }
+                                .map { TelegramTaskForUnassignment(it, listOf()) }
                     }
 
     fun unassignUserFromTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskAfterUnassignment, Exception> =
@@ -40,6 +42,6 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                     .flatMap { task ->
                         task.apply { who = "" } //TODO build telegramLinks from string
                         eventEndpoint.updateEvent(task)
-                                .map { TelegramTaskAfterUnassignment(it, null!!) }
+                                .map { TelegramTaskAfterUnassignment(it, listOf()) }
                     }
 }

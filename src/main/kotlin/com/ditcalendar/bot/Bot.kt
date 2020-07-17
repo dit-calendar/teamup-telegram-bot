@@ -76,8 +76,8 @@ fun main(args: Array<String>) {
             } else {
                 if (opts != null && opts.startsWith("assign")) {
 
-                    val taskId: Long? = opts.substringAfter("_").toLongOrNull()
-                    if (taskId != null) {
+                    val taskId: String = opts.substringAfter("assign_")
+                    if (taskId.isNotBlank()) {
                         val assignMeButton = InlineKeyboardButton("Mit Telegram Namen", callback_data = assingWithNameCallbackCommand + taskId)
                         val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + taskId)
                         val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))

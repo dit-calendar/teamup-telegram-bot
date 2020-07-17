@@ -31,14 +31,14 @@ class EventEndpoint {
                     .third
 
     fun getEvent(eventId: String): Result<Task, Exception> =
-            "$teamupUrl/$teamupCalendarKey/event/$eventId"
+            "$teamupUrl/$teamupCalendarKey/events/$eventId"
                     .httpGet()
-                    .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
+                    .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken), Pair("Accept", "application/json"))
                     .responseObject(loader = Task.serializer(), json = json)
                     .third
 
     fun updateEvent(task: Task): Result<Task, Exception> =
-            "$teamupUrl/$teamupCalendarKey/event/${task.id}"
+            "$teamupUrl/$teamupCalendarKey/events/${task.id}"
                     .httpPut()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
                     .body(json.stringify(Task.serializer(), task))
