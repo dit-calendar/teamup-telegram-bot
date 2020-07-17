@@ -1,8 +1,8 @@
 package com.ditcalendar.bot.telegram
 
-import com.ditcalendar.bot.data.WithInline
-import com.ditcalendar.bot.data.WithMessage
-import com.ditcalendar.bot.data.core.Base
+import com.ditcalendar.bot.domain.data.WithInline
+import com.ditcalendar.bot.domain.data.WithMessage
+import com.ditcalendar.bot.teamup.data.core.Base
 import com.ditcalendar.bot.telegram.formatter.parseResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.CallbackQuery

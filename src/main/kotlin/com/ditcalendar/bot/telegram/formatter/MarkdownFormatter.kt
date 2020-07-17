@@ -2,7 +2,9 @@ package com.ditcalendar.bot.telegram.formatter
 
 import com.ditcalendar.bot.config.bot_name
 import com.ditcalendar.bot.config.config
-import com.ditcalendar.bot.data.*
+import com.ditcalendar.bot.domain.data.*
+import com.ditcalendar.bot.teamup.data.Event
+import com.ditcalendar.bot.teamup.data.SubCalendar
 import java.text.SimpleDateFormat
 
 
@@ -39,7 +41,7 @@ fun TelegramTaskAssignment.toMarkdown(): String =
                 """.trimIndent()
         }
 
-private fun Task.formatTime(): String {
+private fun Event.formatTime(): String {
     var timeString = formatter.format(this.startDate)
     timeString += if (this.endDate != null) " \\- " + formatter.format(this.endDate) else ""
     return timeString + " Uhr"

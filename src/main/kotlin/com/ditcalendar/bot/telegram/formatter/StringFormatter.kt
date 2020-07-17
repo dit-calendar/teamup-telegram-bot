@@ -1,8 +1,9 @@
 package com.ditcalendar.bot.telegram.formatter
 
-import com.ditcalendar.bot.data.*
-import com.ditcalendar.bot.data.core.Base
+import com.ditcalendar.bot.domain.data.*
 import com.ditcalendar.bot.service.reloadCallbackCommand
+import com.ditcalendar.bot.teamup.data.SubCalendar
+import com.ditcalendar.bot.teamup.data.core.Base
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.result.Result
 import kotlinx.serialization.json.JsonDecodingException

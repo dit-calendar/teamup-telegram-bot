@@ -1,8 +1,12 @@
 package com.ditcalendar.bot.service
 
-import com.ditcalendar.bot.data.*
-import com.ditcalendar.bot.endpoint.CalendarEndpoint
-import com.ditcalendar.bot.endpoint.EventEndpoint
+import com.ditcalendar.bot.domain.data.TelegramLink
+import com.ditcalendar.bot.domain.data.TelegramTaskAfterUnassignment
+import com.ditcalendar.bot.domain.data.TelegramTaskForAssignment
+import com.ditcalendar.bot.domain.data.TelegramTaskForUnassignment
+import com.ditcalendar.bot.teamup.data.SubCalendar
+import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
+import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.flatMap
 import com.github.kittinunf.result.map

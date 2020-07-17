@@ -1,16 +1,16 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
-import com.ditcalendar.bot.data.InvalidRequest
-import com.ditcalendar.bot.data.TelegramLink
-import com.ditcalendar.bot.endpoint.CalendarEndpoint
-import com.ditcalendar.bot.endpoint.EventEndpoint
+import com.ditcalendar.bot.domain.data.InvalidRequest
+import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.assingAnnonCallbackCommand
 import com.ditcalendar.bot.service.assingWithNameCallbackCommand
+import com.ditcalendar.bot.service.checkGlobalStateBeforeHandling
+import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
+import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.telegram.CommandExecution
 import com.ditcalendar.bot.telegram.callbackResponse
-import com.ditcalendar.bot.telegram.checkGlobalStateBeforeHandling
 import com.ditcalendar.bot.telegram.messageResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
@@ -30,13 +30,24 @@ val helpMessage =
 
 fun main(args: Array<String>) {
 
-    createDB()
-
     val config by config()
 
     val token = config[telegram_token]
     val herokuApp = config[heroku_app_name]
     val commandExecution = CommandExecution(CalendarService(CalendarEndpoint(), EventEndpoint()))
+    val databaseUrl = config[database_url]
+
+    fun createDB() {
+        val dbUri = URI(databaseUrl)
+        val username = dbUri.userInfo.split(":")[0]
+        val password = dbUri.userInfo.split(":")[1]
+        val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require"
+
+        Database.connect(dbUrl, driver = "org.postgresql.Driver",
+                user = username, password = password)
+    }
+
+    createDB()
 
     val bot = if (config[webhook_is_enabled]) {
         Bot.createWebhook(config[bot_name], token) {
@@ -122,14 +133,4 @@ fun main(args: Array<String>) {
     }
 
     bot.start()
-}
-
-fun createDB() {
-    val dbUri = URI(System.getenv("DATABASE_URL"));
-    val username = dbUri.userInfo.split(":")[0];
-    val password = dbUri.userInfo.split(":")[1];
-    val dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path + "?sslmode=require";
-
-    Database.connect(dbUrl, driver = "org.postgresql.Driver",
-            user = username, password = password)
 }

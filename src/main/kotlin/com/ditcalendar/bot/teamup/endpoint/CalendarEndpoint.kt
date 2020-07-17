@@ -1,13 +1,13 @@
-package com.ditcalendar.bot.endpoint
+package com.ditcalendar.bot.teamup.endpoint
 
 import com.ditcalendar.bot.config.config
 import com.ditcalendar.bot.config.teamup_calendar_key
 import com.ditcalendar.bot.config.teamup_token
 import com.ditcalendar.bot.config.teamup_url
-import com.ditcalendar.bot.data.MultipleSubcalendarsFound
-import com.ditcalendar.bot.data.NoSubcalendarFound
-import com.ditcalendar.bot.data.SubCalendar
-import com.ditcalendar.bot.data.Subcalendars
+import com.ditcalendar.bot.domain.data.MultipleSubcalendarsFound
+import com.ditcalendar.bot.domain.data.NoSubcalendarFound
+import com.ditcalendar.bot.teamup.data.SubCalendar
+import com.ditcalendar.bot.teamup.data.Subcalendars
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.responseObject
 import com.github.kittinunf.result.Result

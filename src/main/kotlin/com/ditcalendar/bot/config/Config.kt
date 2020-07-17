@@ -12,6 +12,8 @@ fun config(): Lazy<Configuration> {
     }
 }
 
+val database_url = Key("database.url", stringType)
+
 val bot_name = Key("bot.name", stringType)
 val webhook_is_enabled = Key("webhook.enabled", booleanType)
 

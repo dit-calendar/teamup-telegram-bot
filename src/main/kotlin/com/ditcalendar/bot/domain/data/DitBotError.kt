@@ -1,4 +1,4 @@
-package com.ditcalendar.bot.data
+package com.ditcalendar.bot.domain.data
 
 import com.ditcalendar.bot.telegram.formatter.withMDEscape
 

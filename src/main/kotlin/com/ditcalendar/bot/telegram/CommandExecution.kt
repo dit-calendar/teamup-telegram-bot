@@ -1,9 +1,9 @@
 package com.ditcalendar.bot.telegram
 
-import com.ditcalendar.bot.data.InvalidRequest
-import com.ditcalendar.bot.data.TelegramLink
-import com.ditcalendar.bot.data.core.Base
+import com.ditcalendar.bot.domain.data.InvalidRequest
+import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.service.*
+import com.ditcalendar.bot.teamup.data.core.Base
 import com.github.kittinunf.result.Result
 import java.text.DateFormat
 import java.text.SimpleDateFormat
