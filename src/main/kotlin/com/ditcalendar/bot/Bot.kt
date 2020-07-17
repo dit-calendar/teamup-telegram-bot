@@ -1,8 +1,8 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
+import com.ditcalendar.bot.domain.dao.TelegramLinksTable
 import com.ditcalendar.bot.domain.data.InvalidRequest
-import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.assingAnnonCallbackCommand
 import com.ditcalendar.bot.service.assingWithNameCallbackCommand
@@ -19,6 +19,8 @@ import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.URI
 
 val helpMessage =
@@ -45,6 +47,10 @@ fun main(args: Array<String>) {
 
         Database.connect(dbUrl, driver = "org.postgresql.Driver",
                 user = username, password = password)
+
+        transaction {
+            SchemaUtils.create(TelegramLinksTable)
+        }
     }
 
     createDB()
@@ -72,8 +78,7 @@ fun main(args: Array<String>) {
                 bot.answerCallbackQuery(callbackQuery.id, "fehlerhafte Anfrage")
             } else {
                 val msgUser = callbackQuery.from
-                val telegramLink = TelegramLink(originallyMessage.chat.id, msgUser.id, msgUser.username, msgUser.first_name)
-                val response = commandExecution.executeCallback(telegramLink, request)
+                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
             }

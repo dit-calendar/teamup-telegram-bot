@@ -53,6 +53,7 @@ private fun parseError(error: Exception): TelegramResponse =
                     is ServerNotReachable -> "server need to startup, try again"
                     is NoSubcalendarFound -> error.message!!
                     is MultipleSubcalendarsFound -> error.message!!
+                    is DBUserNotFound -> error.message!!
                 }
             }
             else -> "unknown error"

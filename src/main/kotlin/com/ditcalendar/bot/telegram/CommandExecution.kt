@@ -1,5 +1,9 @@
 package com.ditcalendar.bot.telegram
 
+import com.ditcalendar.bot.domain.dao.find
+import com.ditcalendar.bot.domain.dao.findOrCreate
+import com.ditcalendar.bot.domain.dao.updateName
+import com.ditcalendar.bot.domain.data.DBUserNotFound
 import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.service.*
@@ -12,12 +16,16 @@ import java.util.*
 
 class CommandExecution(private val calendarService: CalendarService) {
 
-    fun executeCallback(telegramLink: TelegramLink, callbaBackData: String): Result<Base, Exception> =
+    fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
                 val taskId: String = callbaBackData.substringAfter("_")
-                if (taskId.isNotBlank())
-                    calendarService.unassignUserFromTask(taskId, telegramLink)
-                else
+                if (taskId.isNotBlank()) {
+                    val telegramLink = find(msgUserId)
+                    if (telegramLink == null)
+                        Result.error(DBUserNotFound())
+                    else
+                        calendarService.unassignUserFromTask(taskId, telegramLink)
+                } else
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(reloadCallbackCommand)) {
                 val variables = callbaBackData.substringAfter("_").split("_")
@@ -30,9 +38,13 @@ class CommandExecution(private val calendarService: CalendarService) {
                 else
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(assingWithNameCallbackCommand)) {
+                var telegramLink = findOrCreate(chatId, msgUserId)
+                telegramLink = updateName(telegramLink, msgUserFirstName)
                 executeTaskAssignmentCommand(telegramLink, callbaBackData)
             } else if (callbaBackData.startsWith(assingAnnonCallbackCommand)) {
-                executeTaskAssignmentCommand(telegramLink.copy(firstName = null, userName = null), callbaBackData)
+                var telegramLink = findOrCreate(chatId, msgUserId)
+                telegramLink = updateName(telegramLink, null)
+                executeTaskAssignmentCommand(telegramLink, callbaBackData)
             } else
                 Result.error(InvalidRequest())
 

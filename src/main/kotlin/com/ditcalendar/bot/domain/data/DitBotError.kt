@@ -11,3 +11,4 @@ class InvalidRequest(errorMessage: String?) : DitBotError(errorMessage?.withMDEs
 class ServerNotReachable : DitBotError("server need to startup. try again".withMDEscape())
 class NoSubcalendarFound(name: String) : DitBotError("no subcalendar found with name $name".withMDEscape())
 class MultipleSubcalendarsFound : DitBotError("found more than one subcalendar")
+class DBUserNotFound : DitBotError("user could not be found")
