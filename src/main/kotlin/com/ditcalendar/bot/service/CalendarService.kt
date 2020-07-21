@@ -44,15 +44,25 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
             }
 
     private fun parseWhoToIds(who: String?): List<Int> =
-            if (who.isNullOrBlank()) listOf() else who.split(";").map { it.toInt() }
+            if (who.isNullOrBlank()) listOf()
+            else who.split(";")
+                    .filter { it.isNotBlank() }
+                    .mapNotNull { it.toIntOrNull() }
 
     fun unassignUserFromTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskAfterUnassignment, Exception> =
             eventEndpoint.getEvent(taskId)
                     .flatMap { task ->
-                        task.apply { who = "" } //TODO build telegramLinks from string
+                        task.apply { who = removeUserFromWho(who, telegramLink.telegramUserId.toString()) }
                         eventEndpoint.updateEvent(task)
-                                .map { TelegramTaskAfterUnassignment(it, listOf()) }
+                                .map { TelegramTaskAfterUnassignment(it, find(parseWhoToIds(task.who))) }
                     }
+
+    private fun removeUserFromWho(oldWho: String?, telegramLinkUserId: String): String? =
+            when {
+                oldWho.isNullOrBlank() -> oldWho
+                telegramLinkUserId in oldWho -> oldWho.replace(telegramLinkUserId, "").replace(";;", ";")
+                else -> oldWho
+            }
 
     private fun Result<SubCalendar, Exception>.fillCalendar(startDate: String, endDate: String) =
             this.flatMap { calendar: SubCalendar ->
@@ -62,7 +72,7 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                         this.startDate = startDate
                         this.endDate = endDate
                         this.tasks = it.events
-                                .map { task -> TelegramTaskForAssignment(task, find(parseWhoToIds(task.who))) } //TODO build telegramLinks from task.who
+                                .map { task -> TelegramTaskForAssignment(task, find(parseWhoToIds(task.who))) }
                     }
                 }
             }
