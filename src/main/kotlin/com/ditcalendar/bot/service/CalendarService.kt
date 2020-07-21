@@ -43,7 +43,8 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                 else -> "$telegramLinkUserId;$oldWho"
             }
 
-    private fun parseWhoToIds(who: String?): List<Int> = who?.split(";")?.map { it.toInt() } ?: listOf()
+    private fun parseWhoToIds(who: String?): List<Int> =
+            if (who.isNullOrBlank()) listOf() else who.split(";").map { it.toInt() }
 
     fun unassignUserFromTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskAfterUnassignment, Exception> =
             eventEndpoint.getEvent(taskId)
@@ -61,7 +62,7 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                         this.startDate = startDate
                         this.endDate = endDate
                         this.tasks = it.events
-                                .map { task -> TelegramTaskForAssignment(task, listOf()) } //TODO build telegramLinks from task.who
+                                .map { task -> TelegramTaskForAssignment(task, find(parseWhoToIds(task.who))) } //TODO build telegramLinks from task.who
                     }
                 }
             }
