@@ -1,5 +1,6 @@
 package com.ditcalendar.bot.service
 
+import com.ditcalendar.bot.domain.dao.find
 import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.domain.data.TelegramTaskAfterUnassignment
 import com.ditcalendar.bot.domain.data.TelegramTaskForAssignment
@@ -29,11 +30,15 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
 
     fun assignUserToTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskForUnassignment, Exception> =
             eventEndpoint.getEvent(taskId)
-                    .flatMap { task ->
-                        task.apply { who = "" } //TODO build telegramLinks from string
-                        eventEndpoint.updateEvent(task)
-                                .map { TelegramTaskForUnassignment(it, listOf()) }
+                    .flatMap { oldTask ->
+                        val newWho = oldTask.who?.let { if(telegramLink.telegramUserId.toString() in it) it else it + telegramLink.telegramUserId + ";" } ?: telegramLink.telegramUserId.toString()
+                        oldTask.apply { who = newWho }
+                        eventEndpoint.updateEvent(oldTask)
+                                .map { TelegramTaskForUnassignment(it, find(parseWhoToIds(it.who))) }
                     }
+
+    private fun parseWhoToIds(who : String?) : List<Int> =
+        who.orEmpty().split(";").map { it.toInt() }
 
     fun unassignUserFromTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskAfterUnassignment, Exception> =
             eventEndpoint.getEvent(taskId)

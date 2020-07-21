@@ -29,6 +29,14 @@ fun find(msgUserId: Int): TelegramLink? =
                     .elementAtOrNull(0)
         }
 
+fun find(msgUserIds: List<Int>): List<TelegramLink> =
+        transaction {
+            msgUserIds.mapNotNull {
+                TelegramLink.find { TelegramLinksTable.telegramUserId eq it }
+                        .elementAtOrNull(0)
+            }
+        }
+
 fun updateName(telegramLink: TelegramLink, newFirstName: String?): TelegramLink =
         transaction {
             TelegramLinksTable.update({ TelegramLinksTable.id eq telegramLink.id }) {
