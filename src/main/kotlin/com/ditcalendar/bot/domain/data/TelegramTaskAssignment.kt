@@ -5,13 +5,9 @@ import com.ditcalendar.bot.teamup.data.core.Base
 
 typealias TelegramTaskAssignments = List<TelegramTaskAssignment>
 
-sealed class TelegramTaskAssignment : Base() {
-    abstract val task: Event
-    abstract val assignedUsers: TelegramLinks
-}
 
-class TelegramTaskForAssignment(override val task: Event, override val assignedUsers: TelegramLinks) : TelegramTaskAssignment()
+sealed class TelegramTaskAssignment(val task: Event, val assignedUsers: TelegramLinks) : Base()
 
-class TelegramTaskForUnassignment(override val task: Event, override val assignedUsers: TelegramLinks) : TelegramTaskAssignment()
-
-class TelegramTaskAfterUnassignment(override val task: Event, override val assignedUsers: TelegramLinks) : TelegramTaskAssignment()
+class TelegramTaskForAssignment(t: Event, tl: TelegramLinks) : TelegramTaskAssignment(t, tl)
+class TelegramTaskForUnassignment(t: Event, tl: TelegramLinks) : TelegramTaskAssignment(t, tl)
+class TelegramTaskAfterUnassignment(t: Event, tl: TelegramLinks) : TelegramTaskAssignment(t, tl)

@@ -6,12 +6,12 @@ import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.assingAnnonCallbackCommand
 import com.ditcalendar.bot.service.assingWithNameCallbackCommand
-import com.ditcalendar.bot.service.checkGlobalStateBeforeHandling
+import com.ditcalendar.bot.telegram.service.checkGlobalStateBeforeHandling
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
-import com.ditcalendar.bot.telegram.CommandExecution
-import com.ditcalendar.bot.telegram.callbackResponse
-import com.ditcalendar.bot.telegram.messageResponse
+import com.ditcalendar.bot.service.CommandExecution
+import com.ditcalendar.bot.telegram.service.callbackResponse
+import com.ditcalendar.bot.telegram.service.messageResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
 import com.elbekD.bot.types.InlineKeyboardButton
@@ -122,8 +122,10 @@ fun main(args: Array<String>) {
     fun postCalendarCommand(msg: Message, opts: String?) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
-            val response = commandExecution.executePublishCalendarCommand(opts)
-            bot.messageResponse(response, msg)
+            if (opts != null) {
+                val response = commandExecution.executePublishCalendarCommand(opts)
+                bot.messageResponse(response, msg)
+            } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
 

@@ -1,12 +1,9 @@
-package com.ditcalendar.bot.telegram
+package com.ditcalendar.bot.service
 
-import com.ditcalendar.bot.domain.dao.find
 import com.ditcalendar.bot.domain.dao.findOrCreate
 import com.ditcalendar.bot.domain.dao.updateName
-import com.ditcalendar.bot.domain.data.DBUserNotFound
 import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.domain.data.TelegramLink
-import com.ditcalendar.bot.service.*
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.github.kittinunf.result.Result
 import java.text.DateFormat
@@ -20,11 +17,9 @@ class CommandExecution(private val calendarService: CalendarService) {
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
                 val taskId: String = callbaBackData.substringAfter("_")
                 if (taskId.isNotBlank()) {
-                    val telegramLink = find(msgUserId)
-                    if (telegramLink == null)
-                        Result.error(DBUserNotFound())
-                    else
-                        calendarService.unassignUserFromTask(taskId, telegramLink)
+                    // if user not existing, the DB of Bot was maybe dropped
+                    val telegramLink = findOrCreate(chatId, msgUserId)
+                    calendarService.unassignUserFromTask(taskId, telegramLink)
                 } else
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(reloadCallbackCommand)) {
@@ -56,34 +51,45 @@ class CommandExecution(private val calendarService: CalendarService) {
             Result.error(InvalidRequest())
     }
 
-    fun executePublishCalendarCommand(opts: String?): Result<Base, Exception> {
-        return if (opts != null) {
-            val variables = opts.split(" ")
-            val subCalendarName = variables.getOrNull(0)
-            val startDateString = variables.getOrNull(1)
-            var endDateString = variables.getOrNull(2)
+    fun executePublishCalendarCommand(opts: String): Result<Base, Exception> {
+        val variables = opts.split(" ")
+        val subCalendarName = variables.getOrNull(0)
+        val startDate = variables.getOrNull(1)
+        var endDate = variables.getOrNull(2)
 
-            if (subCalendarName != null && startDateString != null) {
-                val df: DateFormat = SimpleDateFormat("yyyy-MM-dd")
-                val checkDateInput = Result.of<Unit, Exception> {
-                    df.parse(startDateString)
-                    if (endDateString != null) df.parse(endDateString)
-                }
-                when (checkDateInput) {
-                    is Result.Failure -> Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
-                    is Result.Success -> {
-                        if (endDateString == null) { // use next day (after midnight)
-                            val c = Calendar.getInstance()
-                            c.time = df.parse(startDateString)
-                            c.add(Calendar.DATE, 1)
-                            endDateString = df.format(c.time) + "T04:00:00"
-                        }
-                        calendarService.getCalendarAndTask(subCalendarName, startDateString, endDateString!!)
-                    }
-                }
+        return if (subCalendarName != null) {
+
+            if (isDateInputValid(startDate, endDate)) {
+                if (endDate == null)
+                    endDate = nextDayAfterMidnight(startDate!!)
+
+                calendarService.getCalendarAndTask(subCalendarName, startDate!!, endDate)
             } else
-                Result.error(InvalidRequest())
-        } else
-            Result.error(InvalidRequest())
+                Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
+
+        } else Result.error(InvalidRequest())
     }
+}
+
+private val df: DateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+private fun isDateInputValid(startDate: String?, endDate: String?): Boolean {
+    if (startDate == null)
+        return false
+
+    val checkDateInput = Result.of<Unit, Exception> {
+        df.parse(startDate)
+        if (endDate != null) df.parse(endDate)
+    }
+    return when (checkDateInput) {
+        is Result.Failure -> false
+        is Result.Success -> true
+    }
+}
+
+private fun nextDayAfterMidnight(startDate: String): String {
+    val c = Calendar.getInstance()
+    c.time = df.parse(startDate)
+    c.add(Calendar.DATE, 1)
+    return df.format(c.time) + "T04:00:00"
 }

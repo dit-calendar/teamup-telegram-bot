@@ -1,8 +1,8 @@
-package com.ditcalendar.bot.telegram
+package com.ditcalendar.bot.telegram.service
 
-import com.ditcalendar.bot.domain.data.WithInline
-import com.ditcalendar.bot.domain.data.WithMessage
 import com.ditcalendar.bot.teamup.data.core.Base
+import com.ditcalendar.bot.telegram.data.InlineMessageResponse
+import com.ditcalendar.bot.telegram.data.MessageResponse
 import com.ditcalendar.bot.telegram.formatter.parseResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.CallbackQuery
@@ -15,9 +15,9 @@ import com.github.kittinunf.result.success
 
 fun Bot.messageResponse(response: Result<Base, Exception>, msg: Message) {
     when (val result = parseResponse(response)) {
-        is WithMessage ->
+        is MessageResponse ->
             sendMessage(msg.chat.id, result.message, "MarkdownV2", true)
-        is WithInline -> {
+        is InlineMessageResponse -> {
             val inlineButton = InlineKeyboardButton(result.callBackText, callback_data = result.callBackData)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
             sendMessage(msg.chat.id, result.message, "MarkdownV2", true, markup = inlineKeyboardMarkup)
@@ -27,7 +27,7 @@ fun Bot.messageResponse(response: Result<Base, Exception>, msg: Message) {
 
 fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: CallbackQuery, originallyMessage: Message) {
     when (val result = parseResponse(response)) {
-        is WithMessage -> {
+        is MessageResponse -> {
             response.failure { answerCallbackQuery(callbackQuery.id, result.message, alert = true) }
             response.success {
                 if (result.callbackNotificationText != null)
@@ -36,7 +36,7 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
                         parseMode = "MarkdownV2")
             }
         }
-        is WithInline -> {
+        is InlineMessageResponse -> {
             answerCallbackQuery(callbackQuery.id, result.callbackNotificationText)
             val inlineButton = InlineKeyboardButton(result.callBackText, callback_data = result.callBackData)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
