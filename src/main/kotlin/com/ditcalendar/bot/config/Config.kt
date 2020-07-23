@@ -8,6 +8,7 @@ fun config(): Lazy<Configuration> {
     return lazy {
         systemProperties() overriding
                 EnvironmentVariables() overriding
+                ConfigurationProperties.fromResource("dev.properties") overriding
                 ConfigurationProperties.fromResource("config.properties")
     }
 }
