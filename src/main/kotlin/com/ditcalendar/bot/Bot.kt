@@ -25,9 +25,9 @@ import java.net.URI
 
 val helpMessage =
         """
-            Mögliche Befehle sind
-            /postcalendar {Hier Id einfügen} = Postet den Calendar mit der angegebenen ID
-            /help = Zeigt alle Befehle an
+            Commands which the bot accept
+            /postcalendar {Subcalendar name} {start date as yyyy-MM-dd} {optional end date as yyyy-MM-dd} = Post subcalendar in channel
+            /help = show all bot commands
         """.trimIndent()
 
 fun main(args: Array<String>) {
