@@ -25,10 +25,13 @@ fun TelegramTaskAssignment.toMarkdown(): String =
                 """.trimIndent()
 
             is TelegramTaskForUnassignment -> {
-                val formattedDescription = ""
-                /*if (task.notes!!.isNotBlank())
-                    System.lineSeparator() + task.notes!!.withMDEscape()
-                else ""*/
+                val formattedDescription =
+                if (task.notes != null && task.notes!!.isNotBlank())
+                    System.lineSeparator() + task.notes!!
+                            .replace("<p>", "")
+                            .replace("</p>", "")
+                            .withMDEscape()
+                else ""
                 "*erfolgreich hinzugefügt:*" + System.lineSeparator() +
                         "*${formatter.format(task.startDate.time)} Uhr* \\- ${task.title.withMDEscape()}$formattedDescription" + System.lineSeparator() +
                         "Wer?: ${assignedUsers.toMarkdown()}"
@@ -69,9 +72,13 @@ fun String.withMDEscape() =
         this.replace("\"", "")
                 .replace("\\", "\\\\")
                 .replace("`", "\\`")
+                .replace("~", "\\~")
+                .replace(">", "\\>")
                 .replace("!", "\\!")
                 .replace("+", "\\+")
                 .replace("-", "\\-")
+                .replace("=", "\\=")
+                .replace("|", "\\|")
                 .replace("_", "\\_")
                 .replace(".", "\\.")
                 .replace("*", "\\*")
