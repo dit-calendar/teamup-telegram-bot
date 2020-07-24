@@ -1,4 +1,4 @@
-# teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/github/dit-calendar/teamup-telegram-bot)
+# teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/teamup-telegram-bot)
 
 ## how to use
 To use this application in your telegram group, you must first complete following steps:
