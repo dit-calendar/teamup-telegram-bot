@@ -12,6 +12,7 @@ import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.failure
 import com.github.kittinunf.result.success
+import java.util.concurrent.CompletableFuture
 
 fun Bot.messageResponse(response: Result<Base, Exception>, msg: Message) {
     when (val result = parseResponse(response)) {
@@ -30,18 +31,26 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
         is MessageResponse -> {
             response.failure { answerCallbackQuery(callbackQuery.id, result.message, alert = true) }
             response.success {
-                if (result.callbackNotificationText != null)
-                    answerCallbackQuery(callbackQuery.id, result.callbackNotificationText)
-                editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
+                val telegramAnswer = editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
                         parseMode = "MarkdownV2")
+                telegramAnswer.handleCallbackQuery(this, callbackQuery.id, result.callbackNotificationText)
             }
         }
         is InlineMessageResponse -> {
-            answerCallbackQuery(callbackQuery.id, result.callbackNotificationText)
             val inlineButton = InlineKeyboardButton(result.callBackText, callback_data = result.callBackData)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
-            editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
+            val telegramAnswer = editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
                     parseMode = "MarkdownV2", disableWebPagePreview = true, markup = inlineKeyboardMarkup)
+
+            telegramAnswer.handleCallbackQuery(this, callbackQuery.id, result.callbackNotificationText)
         }
+    }
+}
+
+fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: String, callbackNotificationText: String?) {
+    this.handle { _, throwable ->
+        if (throwable == null || throwable.message!!.contains("Bad Request: message is not modified"))
+            if (callbackNotificationText != null)
+                bot.answerCallbackQuery(calbackQueryId, callbackNotificationText)
     }
 }
