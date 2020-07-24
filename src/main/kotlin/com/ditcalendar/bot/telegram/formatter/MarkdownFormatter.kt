@@ -16,38 +16,37 @@ private val formatter = SimpleDateFormat("HH:mm")
 
 private val dateFormatter = SimpleDateFormat("dd.MM")
 
-fun TelegramTaskAssignment.toMarkdown(): String =
-        when (this) {
-            is TelegramTaskForAssignment ->
-                """
-                    *${task.formatTime()}* \- ${task.title.withMDEscape()}
-                    Wer?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=assign_${task.id})
-                """.trimIndent()
+fun TelegramTaskAssignment.toMarkdown(): String {
+    val formattedDescription =
+            if (task.notes != null && task.notes!!.isNotBlank())
+                System.lineSeparator() + task.notes!!
+                        .replace("<p>", "")
+                        .replace("</p>", "")
+                        .withMDEscape()
+            else ""
+    return when (this) {
+        is TelegramTaskForAssignment ->
+            "\uD83D\uDD51 *${task.formatTime()}* \\- ${task.title.withMDEscape()}" + formattedDescription + System.lineSeparator() +
+                    "Who?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=assign_${task.id})"
 
-            is TelegramTaskForUnassignment -> {
-                val formattedDescription =
-                if (task.notes != null && task.notes!!.isNotBlank())
-                    System.lineSeparator() + task.notes!!
-                            .replace("<p>", "")
-                            .replace("</p>", "")
-                            .withMDEscape()
-                else ""
-                "*erfolgreich hinzugefügt:*" + System.lineSeparator() +
-                        "*${formatter.format(task.startDate.time)} Uhr* \\- ${task.title.withMDEscape()}$formattedDescription" + System.lineSeparator() +
-                        "Wer?: ${assignedUsers.toMarkdown()}"
-            }
-
-            is TelegramTaskAfterUnassignment ->
-                """
-                    *erfolgreich ausgetragen*:
-                    *${formatter.format(task.startDate.time)} Uhr* \- ${task.title.withMDEscape()}
-                """.trimIndent()
+        is TelegramTaskForUnassignment -> {
+            "\uD83C\uDF89 *successfully assigned:*" + System.lineSeparator() +
+                    "*${task.formatTime()}* \\- ${task.title.withMDEscape()}$formattedDescription" + System.lineSeparator() +
+                    "Who?: ${assignedUsers.toMarkdown()}"
         }
+
+        is TelegramTaskAfterUnassignment ->
+            """
+                😥 *successfully removed*:
+                *${task.formatTime()}* \- ${task.title.withMDEscape()}
+            """.trimIndent()
+    }
+}
 
 private fun Event.formatTime(): String {
     var timeString = formatter.format(this.startDate)
-    timeString += if (this.endDate != null) " \\- " + formatter.format(this.endDate) else ""
-    return timeString + " Uhr"
+    timeString += " \\- " + formatter.format(this.endDate)
+    return timeString
 }
 
 @JvmName("toMarkdownForTelegramLinks")
@@ -64,7 +63,7 @@ fun TelegramTaskAssignments.toMarkdown(): String = System.lineSeparator() +
 
 fun SubCalendar.toMarkdown(): String {
     return """
-            *$name* am ${dateFormatter.format(tasks[0].task.startDate).withMDEscape()}
+            *$name* \- ${dateFormatter.format(tasks[0].task.startDate).withMDEscape()}${System.lineSeparator()}
         """.trimIndent() + tasks.toMarkdown()
 }
 
