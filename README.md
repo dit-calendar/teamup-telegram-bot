@@ -1,5 +1,7 @@
 # teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/teamup-telegram-bot)
 
+This is a tool to allow user-task assignment via telegram for your [teamup](https://www.teamup.com/) calendar. It designed to help with self-administration of work for (public/collective/participatory/collaborative) groups.
+
 ## how to use
 To use this application in your telegram group, you must first complete following steps:
 1. create a calendar on [teamup](https://www.teamup.com/)
@@ -16,6 +18,7 @@ To use this application in your telegram group, you must first complete followin
 
 **This application is still in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
 
+_As alternative to teamup you can use also [dit-calendar](https://github.com/dit-calendar/dit-calendar.github.io)_
 
 ## for developers
 
