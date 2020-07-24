@@ -1,4 +1,4 @@
-package com.ditcalendar.bot.data.core
+package com.ditcalendar.bot.teamup.data.core
 
 import kotlinx.serialization.Serializable
 

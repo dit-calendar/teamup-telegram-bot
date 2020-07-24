@@ -1,23 +1,27 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
-import com.ditcalendar.bot.data.InvalidRequest
-import com.ditcalendar.bot.data.TelegramLink
-import com.ditcalendar.bot.endpoint.CalendarEndpoint
-import com.ditcalendar.bot.endpoint.EventEndpoint
+import com.ditcalendar.bot.domain.dao.TelegramLinksTable
+import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.assingAnnonCallbackCommand
 import com.ditcalendar.bot.service.assingWithNameCallbackCommand
-import com.ditcalendar.bot.telegram.CommandExecution
-import com.ditcalendar.bot.telegram.callbackResponse
-import com.ditcalendar.bot.telegram.checkGlobalStateBeforeHandling
-import com.ditcalendar.bot.telegram.messageResponse
+import com.ditcalendar.bot.telegram.service.checkGlobalStateBeforeHandling
+import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
+import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
+import com.ditcalendar.bot.service.CommandExecution
+import com.ditcalendar.bot.telegram.service.callbackResponse
+import com.ditcalendar.bot.telegram.service.messageResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
 import com.elbekD.bot.types.InlineKeyboardButton
 import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
+import java.net.URI
 
 val helpMessage =
         """
@@ -28,12 +32,30 @@ val helpMessage =
 
 fun main(args: Array<String>) {
 
-
     val config by config()
 
     val token = config[telegram_token]
     val herokuApp = config[heroku_app_name]
     val commandExecution = CommandExecution(CalendarService(CalendarEndpoint(), EventEndpoint()))
+    val databaseUrl = config[database_url]
+
+    fun createDB() {
+        val dbUri = URI(databaseUrl)
+        val username = dbUri.userInfo.split(":")[0]
+        val password = dbUri.userInfo.split(":")[1]
+        var dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path
+        if(herokuApp.isNotBlank()) //custom config logic needed because of config lib
+            dbUrl += "?sslmode=require"
+
+        Database.connect(dbUrl, driver = "org.postgresql.Driver",
+                user = username, password = password)
+
+        transaction {
+            SchemaUtils.create(TelegramLinksTable)
+        }
+    }
+
+    createDB()
 
     val bot = if (config[webhook_is_enabled]) {
         Bot.createWebhook(config[bot_name], token) {
@@ -58,8 +80,7 @@ fun main(args: Array<String>) {
                 bot.answerCallbackQuery(callbackQuery.id, "fehlerhafte Anfrage")
             } else {
                 val msgUser = callbackQuery.from
-                val telegramLink = TelegramLink(originallyMessage.chat.id, msgUser.id, msgUser.username, msgUser.first_name)
-                val response = commandExecution.executeCallback(telegramLink, request)
+                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
             }
@@ -103,8 +124,10 @@ fun main(args: Array<String>) {
     fun postCalendarCommand(msg: Message, opts: String?) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
-            val response = commandExecution.executePublishCalendarCommand(opts)
-            bot.messageResponse(response, msg)
+            if (opts != null) {
+                val response = commandExecution.executePublishCalendarCommand(opts)
+                bot.messageResponse(response, msg)
+            } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
 

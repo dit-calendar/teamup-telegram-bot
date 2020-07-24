@@ -1,6 +1,7 @@
-package com.ditcalendar.bot.data
+package com.ditcalendar.bot.teamup.data
 
-import com.ditcalendar.bot.data.core.Base
+import com.ditcalendar.bot.domain.data.TelegramTaskForAssignment
+import com.ditcalendar.bot.teamup.data.core.Base
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

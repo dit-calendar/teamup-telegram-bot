@@ -7,6 +7,9 @@
     "telegram-bot",
     "teamup"
   ],
+  "addons": [
+    "heroku-postgresql"
+  ],
   "env": {
     "HEROKU_APP_NAME": {
       "description": "enter the heroku App name here again"
@@ -16,6 +19,9 @@
     },
     "BOT_NAME": {
       "description": "username of your telegram bot. Without '@'"
+    },
+    "TEAMUP_CALENDAR_KEY": {
+      "description": "last part of your teamup calendar url. e.g. xxxxxXXXxxxxXX for https://teamup.com/xxxxxXXXxxxxXX"
     }
   }
 }

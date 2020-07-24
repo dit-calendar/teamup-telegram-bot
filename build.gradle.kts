@@ -23,6 +23,7 @@ repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://kotlin.bintray.com/kotlinx") }
+    jcenter()
 }
 
 dependencies {
@@ -31,6 +32,8 @@ dependencies {
     val konfigVersion = "1.6.10.0"
     val kotlinxSerializationVersion = "0.20.0"
     val ktBotVersion = "1.3.4"
+    val exposedVersion = "0.25.1"
+    val postgresqlVersion = "42.2.2"
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
@@ -40,6 +43,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVersion")
     implementation("com.github.elbekd:kt-telegram-bot:$ktBotVersion")
     implementation("com.natpryce:konfig:$konfigVersion")
+
+    implementation("org.jetbrains.exposed", "exposed-core", exposedVersion)
+    implementation("org.jetbrains.exposed", "exposed-dao", exposedVersion)
+    implementation("org.jetbrains.exposed", "exposed-jdbc", exposedVersion)
+    implementation("org.postgresql:postgresql:$postgresqlVersion")
 }
 
 tasks.withType<KotlinCompile>().configureEach {
