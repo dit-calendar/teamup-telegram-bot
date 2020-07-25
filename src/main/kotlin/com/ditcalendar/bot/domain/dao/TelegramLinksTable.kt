@@ -22,15 +22,17 @@ fun findOrCreate(newChatId: Int, msgUserId: Int): TelegramLink = transaction {
     } else result.elementAt(0)
 }
 
-fun find(msgUserId: Int): TelegramLink? = transaction {
-    TelegramLink.find { TelegramLinksTable.telegramUserId eq msgUserId }
-            .elementAtOrNull(0)
-}
-
 fun find(msgUserIds: List<Int>): List<TelegramLink> = transaction {
-    msgUserIds.mapNotNull {
+    msgUserIds.map {
         TelegramLink.find { TelegramLinksTable.telegramUserId eq it }
-                .elementAtOrNull(0)
+                .elementAtOrElse(0) {_ ->
+                    // after DB drop, users are still assigned in teamup
+                    TelegramLink.new {
+                        chatId = it
+                        telegramUserId = it
+                        firstName = null
+                    }
+                }
     }
 }
 
