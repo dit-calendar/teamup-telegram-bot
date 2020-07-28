@@ -1,9 +1,11 @@
 package com.ditcalendar.bot.telegram.service
 
+import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.ditcalendar.bot.telegram.data.InlineMessageResponse
 import com.ditcalendar.bot.telegram.data.MessageResponse
 import com.ditcalendar.bot.telegram.formatter.parseResponse
+import com.ditcalendar.bot.telegram.formatter.toMarkdown
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.CallbackQuery
 import com.elbekD.bot.types.InlineKeyboardButton
@@ -53,4 +55,9 @@ fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: Str
             if (callbackNotificationText != null)
                 bot.answerCallbackQuery(calbackQueryId, callbackNotificationText)
     }
+}
+
+fun Bot.editOriginalMessage(calendar: SubCalendar, chatId: Long, messageId: Int) {
+    editMessageText(chatId, messageId, text = calendar.toMarkdown(),
+            parseMode = "MarkdownV2", disableWebPagePreview = true)
 }

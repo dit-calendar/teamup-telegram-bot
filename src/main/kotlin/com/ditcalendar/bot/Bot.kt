@@ -11,6 +11,7 @@ import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.service.CommandExecution
 import com.ditcalendar.bot.telegram.service.callbackResponse
+import com.ditcalendar.bot.telegram.service.editOriginalMessage
 import com.ditcalendar.bot.telegram.service.messageResponse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
@@ -18,6 +19,7 @@ import com.elbekD.bot.types.InlineKeyboardButton
 import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.success
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -44,7 +46,7 @@ fun main(args: Array<String>) {
         val username = dbUri.userInfo.split(":")[0]
         val password = dbUri.userInfo.split(":")[1]
         var dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path
-        if(herokuApp.isNotBlank()) //custom config logic needed because of config lib
+        if (herokuApp.isNotBlank()) //custom config logic needed because of config lib
             dbUrl += "?sslmode=require"
 
         Database.connect(dbUrl, driver = "org.postgresql.Driver",
@@ -83,6 +85,16 @@ fun main(args: Array<String>) {
                 val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
+                when (response) {
+                    is Result.Success -> {
+                        val calendar = commandExecution.executeUpdateMessageAfterAssignment(request)
+                        val variables = request.split("_")
+                        val chatId = variables.getOrNull(3)?.toLong()
+                        val messageId = variables.getOrNull(4)?.toInt()
+                        if (chatId != null && messageId != null)
+                            calendar.success { bot.editOriginalMessage(it, chatId, messageId) }
+                    }
+                }
             }
         }
     }

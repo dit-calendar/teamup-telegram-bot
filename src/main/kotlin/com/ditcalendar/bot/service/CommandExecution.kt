@@ -4,6 +4,7 @@ import com.ditcalendar.bot.domain.dao.findOrCreate
 import com.ditcalendar.bot.domain.dao.updateName
 import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.domain.data.TelegramLink
+import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.github.kittinunf.result.Result
 import java.text.DateFormat
@@ -51,7 +52,7 @@ class CommandExecution(private val calendarService: CalendarService) {
             Result.error(InvalidRequest())
     }
 
-    fun executePublishCalendarCommand(opts: String): Result<Base, Exception> {
+    fun executePublishCalendarCommand(opts: String): Result<SubCalendar, Exception> {
         val variables = opts.split(" ")
         val subCalendarName = variables.getOrNull(0)
         val startDate = variables.getOrNull(1)
@@ -67,6 +68,19 @@ class CommandExecution(private val calendarService: CalendarService) {
             } else
                 Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
+        } else Result.error(InvalidRequest())
+    }
+
+    fun executeUpdateMessageAfterAssignment(callbaBackData: String): Result<SubCalendar, Exception> {
+        return if (callbaBackData.startsWith(assingWithNameCallbackCommand) || callbaBackData.startsWith(assingAnnonCallbackCommand)) {
+            val opts = callbaBackData.removePrefix(assingWithNameCallbackCommand).removePrefix(assingAnnonCallbackCommand)
+            val variables = opts.split("_")
+            val subCalendarId = variables.getOrNull(0)?.toInt()
+            val startDate = variables.getOrNull(1)
+            val endDate = variables.getOrNull(2)
+            if (subCalendarId != null && startDate != null && endDate != null)
+            calendarService.getCalendarAndTask(subCalendarId, startDate, endDate)
+            else Result.error(InvalidRequest())
         } else Result.error(InvalidRequest())
     }
 }
