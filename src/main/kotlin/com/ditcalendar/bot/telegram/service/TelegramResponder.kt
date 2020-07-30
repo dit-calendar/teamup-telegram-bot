@@ -1,5 +1,10 @@
 package com.ditcalendar.bot.telegram.service
 
+import com.ditcalendar.bot.domain.data.InvalidRequest
+import com.ditcalendar.bot.helpMessage
+import com.ditcalendar.bot.service.assignDeepLinkCommand
+import com.ditcalendar.bot.service.assingAnnonCallbackCommand
+import com.ditcalendar.bot.service.assingWithNameCallbackCommand
 import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.ditcalendar.bot.telegram.data.InlineMessageResponse
@@ -16,14 +21,17 @@ import com.github.kittinunf.result.failure
 import com.github.kittinunf.result.success
 import java.util.concurrent.CompletableFuture
 
-fun Bot.messageResponse(response: Result<Base, Exception>, msg: Message) {
+const val parseMode = "MarkdownV2"
+const val wrongRequestResponse = "request invalid"
+
+fun Bot.messageResponse(response: Result<Base, Exception>, chatId: Long) {
     when (val result = parseResponse(response)) {
         is MessageResponse ->
-            sendMessage(msg.chat.id, result.message, "MarkdownV2", true)
+            sendMessage(chatId, result.message, parseMode, true)
         is InlineMessageResponse -> {
             val inlineButton = InlineKeyboardButton(result.callBackText, callback_data = result.callBackData)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
-            sendMessage(msg.chat.id, result.message, "MarkdownV2", true, markup = inlineKeyboardMarkup)
+            sendMessage(chatId, result.message, parseMode, true, markup = inlineKeyboardMarkup)
         }
     }
 }
@@ -34,7 +42,7 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
             response.failure { answerCallbackQuery(callbackQuery.id, result.message, alert = true) }
             response.success {
                 val telegramAnswer = editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
-                        parseMode = "MarkdownV2")
+                        parseMode = parseMode)
                 telegramAnswer.handleCallbackQuery(this, callbackQuery.id, result.callbackNotificationText)
             }
         }
@@ -42,7 +50,7 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
             val inlineButton = InlineKeyboardButton(result.callBackText, callback_data = result.callBackData)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
             val telegramAnswer = editMessageText(originallyMessage.chat.id, originallyMessage.message_id, text = result.message,
-                    parseMode = "MarkdownV2", disableWebPagePreview = true, markup = inlineKeyboardMarkup)
+                    parseMode = parseMode, disableWebPagePreview = true, markup = inlineKeyboardMarkup)
 
             telegramAnswer.handleCallbackQuery(this, callbackQuery.id, result.callbackNotificationText)
         }
@@ -59,5 +67,21 @@ fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: Str
 
 fun Bot.editOriginalMessage(calendar: SubCalendar, chatId: Long, messageId: Int) {
     editMessageText(chatId, messageId, text = calendar.toMarkdown(),
-            parseMode = "MarkdownV2", disableWebPagePreview = true)
+            parseMode = parseMode, disableWebPagePreview = true)
+}
+
+fun Bot.responseForDeeplink(chatId: Long, opts: String) {
+    if (opts.startsWith(assignDeepLinkCommand)) {
+        val taskId: String = opts.substringAfter(assignDeepLinkCommand)
+        if (taskId.isNotBlank()) {
+            val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + taskId)
+            val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + taskId)
+            val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
+            sendMessage(chatId, "Can I use your name?", parseMode, true, markup = inlineKeyboardMarkup)
+        } else {
+            messageResponse(Result.error(InvalidRequest()), chatId)
+        }
+    } else {
+        sendMessage(chatId, helpMessage)
+    }
 }

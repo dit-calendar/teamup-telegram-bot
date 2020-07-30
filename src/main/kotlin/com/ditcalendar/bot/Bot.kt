@@ -2,21 +2,13 @@ package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.domain.dao.TelegramLinksTable
-import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.service.CalendarService
-import com.ditcalendar.bot.service.assingAnnonCallbackCommand
-import com.ditcalendar.bot.service.assingWithNameCallbackCommand
-import com.ditcalendar.bot.telegram.service.checkGlobalStateBeforeHandling
+import com.ditcalendar.bot.service.CommandExecution
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
-import com.ditcalendar.bot.service.CommandExecution
-import com.ditcalendar.bot.telegram.service.callbackResponse
-import com.ditcalendar.bot.telegram.service.editOriginalMessage
-import com.ditcalendar.bot.telegram.service.messageResponse
+import com.ditcalendar.bot.telegram.service.*
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
-import com.elbekD.bot.types.InlineKeyboardButton
-import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.success
@@ -46,15 +38,13 @@ fun main(args: Array<String>) {
         val username = dbUri.userInfo.split(":")[0]
         val password = dbUri.userInfo.split(":")[1]
         var dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path
+
         if (herokuApp.isNotBlank()) //custom config logic needed because of config lib
             dbUrl += "?sslmode=require"
 
         Database.connect(dbUrl, driver = "org.postgresql.Driver",
                 user = username, password = password)
-
-        transaction {
-            SchemaUtils.create(TelegramLinksTable)
-        }
+        transaction { SchemaUtils.create(TelegramLinksTable) }
     }
 
     createDB()
@@ -79,7 +69,7 @@ fun main(args: Array<String>) {
             val originallyMessage = callbackQuery.message
 
             if (request == null || originallyMessage == null) {
-                bot.answerCallbackQuery(callbackQuery.id, "fehlerhafte Anfrage")
+                bot.answerCallbackQuery(callbackQuery.id, wrongRequestResponse)
             } else {
                 val msgUser = callbackQuery.from
                 val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
@@ -107,22 +97,12 @@ fun main(args: Array<String>) {
             val msgUser = msg.from
             //if message user is not set, we can't process
             if (msgUser == null) {
-                bot.sendMessage(msg.chat.id, "fehlerhafte Anfrage")
+                bot.sendMessage(msg.chat.id, wrongRequestResponse)
             } else {
-                if (opts != null && opts.startsWith("assign")) {
-
-                    val taskId: String = opts.substringAfter("assign_")
-                    if (taskId.isNotBlank()) {
-                        val assignMeButton = InlineKeyboardButton("Mit Telegram Namen", callback_data = assingWithNameCallbackCommand + taskId)
-                        val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + taskId)
-                        val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
-                        bot.sendMessage(msg.chat.id, "Darf ich dein Namen verwenden?", "MarkdownV2", true, markup = inlineKeyboardMarkup)
-                    } else {
-                        bot.messageResponse(Result.error(InvalidRequest()), msg)
-                    }
-                } else {
+                if (opts != null)
+                    bot.responseForDeeplink(msg.chat.id, opts)
+                else
                     bot.sendMessage(msg.chat.id, helpMessage)
-                }
             }
         }
     }
@@ -138,7 +118,7 @@ fun main(args: Array<String>) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
             if (opts != null) {
                 val response = commandExecution.executePublishCalendarCommand(opts)
-                bot.messageResponse(response, msg)
+                bot.messageResponse(response, msg.chat.id)
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }

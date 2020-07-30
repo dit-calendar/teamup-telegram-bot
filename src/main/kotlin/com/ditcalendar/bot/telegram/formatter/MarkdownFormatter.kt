@@ -3,6 +3,7 @@ package com.ditcalendar.bot.telegram.formatter
 import com.ditcalendar.bot.config.bot_name
 import com.ditcalendar.bot.config.config
 import com.ditcalendar.bot.domain.data.*
+import com.ditcalendar.bot.service.assignDeepLinkCommand
 import com.ditcalendar.bot.teamup.data.Event
 import com.ditcalendar.bot.teamup.data.SubCalendar
 import java.text.SimpleDateFormat
@@ -27,7 +28,7 @@ fun TelegramTaskAssignment.toMarkdown(): String {
     return when (this) {
         is TelegramTaskForAssignment ->
             "\uD83D\uDD51 *${task.formatTime()}* \\- ${task.title.withMDEscape()}" + formattedDescription + System.lineSeparator() +
-                    "Who?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=assign_${task.id})"
+                    "Who?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=$assignDeepLinkCommand${task.id})"
 
         is TelegramTaskForUnassignment -> {
             "\uD83C\uDF89 *successfully assigned:*" + System.lineSeparator() +
@@ -37,7 +38,7 @@ fun TelegramTaskAssignment.toMarkdown(): String {
 
         is TelegramTaskAfterUnassignment ->
             """
-                😥 *successfully removed*:
+                *successfully removed from*:
                 *${task.formatTime()}* \- ${task.title.withMDEscape()}
             """.trimIndent()
     }

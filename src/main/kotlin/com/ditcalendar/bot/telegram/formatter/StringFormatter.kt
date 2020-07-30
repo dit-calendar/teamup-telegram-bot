@@ -2,14 +2,18 @@ package com.ditcalendar.bot.telegram.formatter
 
 import com.ditcalendar.bot.domain.data.*
 import com.ditcalendar.bot.service.reloadCallbackCommand
+import com.ditcalendar.bot.service.unassignCallbackCommand
 import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
-import com.ditcalendar.bot.telegram.data.TelegramResponse
 import com.ditcalendar.bot.telegram.data.InlineMessageResponse
 import com.ditcalendar.bot.telegram.data.MessageResponse
+import com.ditcalendar.bot.telegram.data.TelegramResponse
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.result.Result
 import kotlinx.serialization.json.JsonDecodingException
+
+const val reloadButtonText = "reload"
+const val calendarReloadCallbackNotification = "calendar was reloaded"
 
 fun parseResponse(result: Result<Base, Exception>): TelegramResponse =
         when (result) {
@@ -23,10 +27,12 @@ fun parseResponse(result: Result<Base, Exception>): TelegramResponse =
 private fun parseSuccess(result: Base): TelegramResponse =
         when (result) {
             is SubCalendar ->
-                InlineMessageResponse(result.toMarkdown() + System.lineSeparator(), "reload", "$reloadCallbackCommand${result.id}_${result.startDate}_${result.endDate}", "calendar wurde neugeladen")
+                InlineMessageResponse(result.toMarkdown() + System.lineSeparator(), reloadButtonText,
+                        "$reloadCallbackCommand${result.id}_${result.startDate}_${result.endDate}",
+                        calendarReloadCallbackNotification)
             is TelegramTaskForUnassignment ->
                 InlineMessageResponse(result.toMarkdown(),
-                        "unassign me", "unassign_${result.task.id}", null)
+                        "unassign me", "$unassignCallbackCommand${result.task.id}", null)
             is TelegramTaskForAssignment ->
                 MessageResponse("nicht implementiert", null)
             is TelegramTaskAfterUnassignment ->
@@ -53,7 +59,6 @@ private fun parseError(error: Exception): TelegramResponse =
             is DitBotError -> {
                 when (error) {
                     is InvalidRequest -> error.message!!
-                    is ServerNotReachable -> "server need to startup, try again"
                     is NoSubcalendarFound -> error.message!!
                     is MultipleSubcalendarsFound -> error.message!!
                 }

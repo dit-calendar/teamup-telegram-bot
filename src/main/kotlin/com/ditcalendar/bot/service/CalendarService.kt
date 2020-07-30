@@ -13,11 +13,6 @@ import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.flatMap
 import com.github.kittinunf.result.map
 
-const val unassignCallbackCommand = "unassign_"
-const val reloadCallbackCommand = "reloadCalendar_"
-const val assingWithNameCallbackCommand = "assignme_"
-const val assingAnnonCallbackCommand = "assignmeAnnon_"
-
 class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                       private val eventEndpoint: EventEndpoint) {
 
@@ -59,10 +54,10 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                     }
                 }
             }
-}
 
-fun <TelTask : TelegramTaskAssignment> Event.fillWithTelegramLinks(
-        constructor: (task: Event, t: TelegramLinks) -> TelTask): TelTask {
-    val telegramLinks = find(parseWhoToIds(this.who))
-    return constructor(this, telegramLinks)
+    private fun <TelTask : TelegramTaskAssignment> Event.fillWithTelegramLinks(
+            constructor: (task: Event, t: TelegramLinks) -> TelTask): TelTask {
+        val telegramLinks = find(parseWhoToIds(this.who))
+        return constructor(this, telegramLinks)
+    }
 }

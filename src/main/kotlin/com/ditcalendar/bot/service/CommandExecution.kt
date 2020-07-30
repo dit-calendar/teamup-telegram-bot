@@ -11,12 +11,17 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
+const val assignDeepLinkCommand = "assign_"
+const val unassignCallbackCommand = "unassign_"
+const val reloadCallbackCommand = "reloadCalendar_"
+const val assingWithNameCallbackCommand = "assignme_"
+const val assingAnnonCallbackCommand = "assignmeAnnon_"
 
 class CommandExecution(private val calendarService: CalendarService) {
 
     fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
-                val taskId: String = callbaBackData.substringAfter("_")
+                val taskId: String = callbaBackData.substringAfter(unassignCallbackCommand)
                 if (taskId.isNotBlank()) {
                     // if user not existing, the DB of Bot was maybe dropped
                     val telegramLink = findOrCreate(chatId, msgUserId)
@@ -24,7 +29,7 @@ class CommandExecution(private val calendarService: CalendarService) {
                 } else
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(reloadCallbackCommand)) {
-                val variables = callbaBackData.substringAfter("_").split("_")
+                val variables = callbaBackData.substringAfter(reloadCallbackCommand).split("_")
                 val subCalendarId = variables.getOrNull(0)?.toInt()
                 val startDate = variables.getOrNull(1)
                 val endDate = variables.getOrNull(2)
@@ -78,8 +83,9 @@ class CommandExecution(private val calendarService: CalendarService) {
             val subCalendarId = variables.getOrNull(0)?.toInt()
             val startDate = variables.getOrNull(1)
             val endDate = variables.getOrNull(2)
+
             if (subCalendarId != null && startDate != null && endDate != null)
-            calendarService.getCalendarAndTask(subCalendarId, startDate, endDate)
+                calendarService.getCalendarAndTask(subCalendarId, startDate, endDate)
             else Result.error(InvalidRequest())
         } else Result.error(InvalidRequest())
     }
