@@ -4,13 +4,14 @@ import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.domain.dao.TelegramLinksTable
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.CommandExecution
+import com.ditcalendar.bot.service.assingAnnonCallbackCommand
+import com.ditcalendar.bot.service.assingWithNameCallbackCommand
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.telegram.service.*
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
 import com.elbekD.bot.types.Message
-import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.success
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -75,14 +76,19 @@ fun main(args: Array<String>) {
                 val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
-                when (response) {
-                    is Result.Success -> {
-                        val calendar = commandExecution.executeUpdateMessageAfterAssignment(request)
-                        val variables = request.split("_")
-                        val chatId = variables.getOrNull(3)?.toLong()
-                        val messageId = variables.getOrNull(4)?.toInt()
+                response.success {
+                    if (request.startsWith(assingWithNameCallbackCommand) || request.startsWith(assingAnnonCallbackCommand)) {
+                        val optsAfterTaskId = request
+                                .removePrefix(assingWithNameCallbackCommand)
+                                .removePrefix(assingAnnonCallbackCommand)
+                                .substringAfter("_")
+
+                        val variables = optsAfterTaskId.split("_")
+                        val chatId = variables.getOrNull(3)?.toLongOrNull()
+                        val messageId = variables.getOrNull(4)?.toIntOrNull()
                         if (chatId != null && messageId != null)
-                            calendar.success { bot.editOriginalMessage(it, chatId, messageId) }
+                            commandExecution.reloadCalendar(optsAfterTaskId)
+                                    .success { bot.editOriginalCalendarMessage(it, chatId, messageId) }
                     }
                 }
             }

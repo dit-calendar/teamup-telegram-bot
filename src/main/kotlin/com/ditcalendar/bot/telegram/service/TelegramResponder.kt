@@ -65,7 +65,7 @@ fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: Str
     }
 }
 
-fun Bot.editOriginalMessage(calendar: SubCalendar, chatId: Long, messageId: Int) {
+fun Bot.editOriginalCalendarMessage(calendar: SubCalendar, chatId: Long, messageId: Int) {
     editMessageText(chatId, messageId, text = calendar.toMarkdown(),
             parseMode = parseMode, disableWebPagePreview = true)
 }
