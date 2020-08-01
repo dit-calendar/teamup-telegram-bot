@@ -1,6 +1,13 @@
 # teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/teamup-telegram-bot)
 
-This is a tool to allow user-task assignment via telegram for your [teamup](https://www.teamup.com/) calendar. It designed to help with self-administration of work for (public/collective/participatory/collaborative) groups.
+This is a tool to allow user-event assignment via telegram for a [teamup](https://www.teamup.com/) calendar. It designed to help (public/collective/participatory/collaborative) groups with self-administration of work.
+
+you can create an events in your teamup calendar
+
+<img src="doc/img/teamup-calendar.png" height="400"/>
+and post it in your telegram group/channel, so a person can assign hirself
+<img src="doc/img/telegram-bot.gif" alt="telegram-gif"/>
+
 
 ## how to use
 To use this application in your telegram group, you must first complete following steps:
@@ -14,19 +21,21 @@ To use this application in your telegram group, you must first complete followin
    * it will build&start the program from the current source code
    * **it will not be updated automatically!**
      * if you are interessted in more features, you should check out [new releases](https://github.com/dit-calendar/teamup-telegram-bot/releases) from time to time
-     * just delete it on the heroku and click on the heroku button again
+     * to update it: delete the program in heroku and click on the heroku button again
 
 **This application is still in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
 
-_As alternative to teamup you can use also [dit-calendar](https://github.com/dit-calendar/dit-calendar.github.io)_
+_As alternative to teamup you can also use [dit-calendar](https://github.com/dit-calendar/dit-calendar.github.io)_
 
-## for developers
+# for developers
 
-### manual deployment
+start the DB with `docker-compose up`
+
+## manual deployment
 * `gradle build`
 * `heroku deploy:jar build/libs/teamup-telegram-bot*-all.jar --app teamup-telegram-bot`
 
-### manual test
+## manual test
 * https://core.telegram.org/bots/webhooks
 * check bot status `https://api.telegram.org/bot{token}/getWebhookInfo`
 * send message manually
