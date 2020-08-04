@@ -26,7 +26,7 @@ class EventEndpoint {
     private val teamupCalendarKey = config[teamup_calendar_key]
 
     fun findEvents(subcalendarId: Int, startDate: String, endDate: String): Result<Events, Exception> =
-            "$teamupUrl/$teamupCalendarKey/events?startDate=$startDate&endDate=$endDate&subcalendarId[]=$subcalendarId"
+            "$teamupUrl/$teamupCalendarKey/events?startDate=$startDate&endDate=${endDate}T04:00:00&subcalendarId[]=$subcalendarId"
                     .httpGet()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
                     .responseObject(loader = Events.serializer(), json = json)
