@@ -73,7 +73,7 @@ fun main(args: Array<String>) {
                 bot.answerCallbackQuery(callbackQuery.id, wrongRequestResponse)
             } else {
                 val msgUser = callbackQuery.from
-                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
+                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request, originallyMessage)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
                 response.success {
@@ -87,7 +87,7 @@ fun main(args: Array<String>) {
                         val chatId = variables.getOrNull(3)?.toLongOrNull()
                         val messageId = variables.getOrNull(4)?.toIntOrNull()
                         if (chatId != null && messageId != null)
-                            commandExecution.reloadCalendar(optsAfterTaskId)
+                            commandExecution.reloadCalendar(optsAfterTaskId, chatId, messageId)
                                     .success { bot.editOriginalCalendarMessage(it, chatId, messageId) }
                     }
                 }
@@ -123,7 +123,7 @@ fun main(args: Array<String>) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
             if (opts != null) {
-                val response = commandExecution.executePublishCalendarCommand(opts)
+                val response = commandExecution.executePublishCalendarCommand(opts, msg)
                 bot.messageResponse(response, msg.chat.id)
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }

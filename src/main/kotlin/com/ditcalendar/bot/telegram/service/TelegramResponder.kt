@@ -72,10 +72,10 @@ fun Bot.editOriginalCalendarMessage(calendar: SubCalendar, chatId: Long, message
 
 fun Bot.responseForDeeplink(chatId: Long, opts: String) {
     if (opts.startsWith(assignDeepLinkCommand)) {
-        val taskId: String = opts.substringAfter(assignDeepLinkCommand)
-        if (taskId.isNotBlank()) {
-            val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + taskId)
-            val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + taskId)
+        val callbackOpts: String = opts.substringAfter(assignDeepLinkCommand)
+        if (callbackOpts.isNotBlank()) {
+            val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + callbackOpts)
+            val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + callbackOpts)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
             sendMessage(chatId, "Can I use your name?", parseMode, true, markup = inlineKeyboardMarkup)
         } else {

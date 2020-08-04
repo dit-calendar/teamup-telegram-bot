@@ -16,13 +16,13 @@ import com.github.kittinunf.result.map
 class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                       private val eventEndpoint: EventEndpoint) {
 
-    fun getCalendarAndTask(subCalendarName: String, startDate: String, endDate: String): Result<SubCalendar, Exception> =
+    fun getCalendarAndTask(subCalendarName: String, startDate: String, endDate: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> =
             calendarEndpoint.findSubcalendar(subCalendarName)
-                    .map { it.fillWithTasks(startDate, endDate) }
+                    .map { it.fillWithTasks(startDate, endDate, chatId, messageId) }
 
-    fun getCalendarAndTask(id: Int, startDate: String, endDate: String): Result<SubCalendar, Exception> =
+    fun getCalendarAndTask(id: Int, startDate: String, endDate: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> =
             calendarEndpoint.findSubcalendar(id)
-                    .map { it.fillWithTasks(startDate, endDate) }
+                    .map { it.fillWithTasks(startDate, endDate, chatId, messageId) }
 
     fun assignUserToTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskForUnassignment, Exception> =
             eventEndpoint
@@ -42,20 +42,22 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                                 .map { it.fillWithTelegramLinks(::TelegramTaskAfterUnassignment) }
                     }
 
-    private fun SubCalendar.fillWithTasks(startDate: String, endDate: String) =
+
+    private fun SubCalendar.fillWithTasks(startDate: String, endDate: String, chatId: Long, messageId: Int) =
             this.apply {
                 val tasksResulst = eventEndpoint.findEvents(this.id, startDate, endDate)
+                val constructor  = { task: Event, t: TelegramLinks -> TelegramTaskForAssignment(task, t, MetaInfo(chatId, messageId, this.id, startDate, endDate))}
                 tasksResulst.map {
                     this.apply {
                         this.startDate = startDate
                         this.endDate = endDate
                         this.tasks = it.events
-                                .map { it.fillWithTelegramLinks(::TelegramTaskForAssignment) }
+                                .map {it.fillWithTelegramLinks(constructor) }
                     }
                 }
             }
 
-    private fun <TelTask : TelegramTaskAssignment> Event.fillWithTelegramLinks(
+    private inline fun <TelTask : TelegramTaskAssignment> Event.fillWithTelegramLinks(
             constructor: (task: Event, t: TelegramLinks) -> TelTask): TelTask {
         val telegramLinks = find(parseWhoToIds(this.who))
         return constructor(this, telegramLinks)

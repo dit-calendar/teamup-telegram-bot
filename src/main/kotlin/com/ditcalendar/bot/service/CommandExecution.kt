@@ -7,6 +7,7 @@ import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.domain.data.TelegramTaskForUnassignment
 import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
+import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
 
 const val assignDeepLinkCommand = "assign_"
@@ -17,7 +18,7 @@ const val assingAnnonCallbackCommand = "assignmeAnnon_"
 
 class CommandExecution(private val calendarService: CalendarService) {
 
-    fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String): Result<Base, Exception> =
+    fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
                 val taskId: String = callbaBackData.substringAfter(unassignCallbackCommand)
                 if (taskId.isNotBlank()) {
@@ -27,7 +28,7 @@ class CommandExecution(private val calendarService: CalendarService) {
                 } else
                     Result.error(InvalidRequest())
             } else if (callbaBackData.startsWith(reloadCallbackCommand)) {
-                reloadCalendar(callbaBackData.substringAfter(reloadCallbackCommand))
+                reloadCalendar(callbaBackData.substringAfter(reloadCallbackCommand), msg.chat.id, msg.message_id)
             } else if (callbaBackData.startsWith(assingWithNameCallbackCommand)) {
                 var telegramLink = findOrCreate(chatId, msgUserId)
                 telegramLink = updateName(telegramLink, msgUserFirstName)
@@ -47,7 +48,7 @@ class CommandExecution(private val calendarService: CalendarService) {
             Result.error(InvalidRequest())
     }
 
-    fun executePublishCalendarCommand(opts: String): Result<SubCalendar, Exception> {
+    fun executePublishCalendarCommand(opts: String, msg: Message): Result<SubCalendar, Exception> {
         val variables = opts.split(" ")
         val subCalendarName = variables.getOrNull(0)
         val startDate = variables.getOrNull(1)
@@ -59,21 +60,21 @@ class CommandExecution(private val calendarService: CalendarService) {
                 if (endDate == null)
                     endDate = nextDayAfterMidnight(startDate!!)
 
-                calendarService.getCalendarAndTask(subCalendarName, startDate!!, endDate)
+                calendarService.getCalendarAndTask(subCalendarName, startDate!!, endDate, msg.chat.id, msg.message_id)
             } else
                 Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
         } else Result.error(InvalidRequest())
     }
 
-    fun reloadCalendar(opts: String): Result<SubCalendar, Exception> {
+    fun reloadCalendar(opts: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> {
         val variables = opts.split("_")
         val subCalendarId = variables.getOrNull(0)?.toIntOrNull()
         val startDate = variables.getOrNull(1)
         val endDate = variables.getOrNull(2)
 
         return if (subCalendarId != null && startDate != null && endDate != null)
-            calendarService.getCalendarAndTask(subCalendarId, startDate, endDate)
+            calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, chatId, messageId)
         else Result.error(InvalidRequest())
     }
 }
