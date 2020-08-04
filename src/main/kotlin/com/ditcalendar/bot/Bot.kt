@@ -1,6 +1,7 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
+import com.ditcalendar.bot.domain.dao.PostCalendarMetaInfoTable
 import com.ditcalendar.bot.domain.dao.TelegramLinksTable
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.CommandExecution
@@ -45,7 +46,7 @@ fun main(args: Array<String>) {
 
         Database.connect(dbUrl, driver = "org.postgresql.Driver",
                 user = username, password = password)
-        transaction { SchemaUtils.create(TelegramLinksTable) }
+        transaction { SchemaUtils.create(TelegramLinksTable, PostCalendarMetaInfoTable) }
     }
 
     createDB()
