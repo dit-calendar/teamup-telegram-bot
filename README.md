@@ -2,10 +2,10 @@
 
 This is a tool to allow user-event assignment via telegram for a [teamup](https://www.teamup.com/) calendar. It designed to help (public/collective/participatory/collaborative) groups with self-administration of work.
 
-you can create an event in your teamup calendar
+after you created an event in your teamup calendar
 
 <img src="doc/img/teamup-calendar.png" height="400"/>
-and post it in your telegram group/channel, so a person can assign hirself
+you can post it in your telegram group/channel, so a person can assign hirself
 <img src="doc/img/telegram-bot.gif" alt="telegram-gif"/>
 
 
