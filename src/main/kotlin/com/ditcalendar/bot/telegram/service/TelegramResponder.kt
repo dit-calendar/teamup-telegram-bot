@@ -24,14 +24,14 @@ import java.util.concurrent.CompletableFuture
 const val parseMode = "MarkdownV2"
 const val wrongRequestResponse = "request invalid"
 
-fun Bot.messageResponse(response: Result<Base, Exception>, chatId: Long) {
+fun Bot.messageResponse(response: Result<Base, Exception>, chatId: Long): CompletableFuture<Message> {
     when (val result = parseResponse(response)) {
         is MessageResponse ->
-            sendMessage(chatId, result.message, parseMode, true)
+            return sendMessage(chatId, result.message, parseMode, true)
         is InlineMessageResponse -> {
             val inlineButton = InlineKeyboardButton(result.callBackText, callback_data = result.callBackData)
             val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
-            sendMessage(chatId, result.message, parseMode, true, markup = inlineKeyboardMarkup)
+            return sendMessage(chatId, result.message, parseMode, true, markup = inlineKeyboardMarkup)
         }
     }
 }

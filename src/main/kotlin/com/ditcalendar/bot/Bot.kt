@@ -1,9 +1,7 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
-import com.ditcalendar.bot.domain.dao.PostCalendarMetaInfoTable
-import com.ditcalendar.bot.domain.dao.TelegramLinksTable
-import com.ditcalendar.bot.domain.dao.find
+import com.ditcalendar.bot.domain.dao.*
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.CommandExecution
 import com.ditcalendar.bot.service.assingAnnonCallbackCommand
@@ -121,7 +119,8 @@ fun main(args: Array<String>) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
             if (opts != null) {
                 val response = commandExecution.executePublishCalendarCommand(opts, msg)
-                bot.messageResponse(response, msg.chat.id)
+                var messageResponse = bot.messageResponse(response, msg.chat.id)
+                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { it1 -> updateMessageId(it1, it.message_id) } }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
@@ -141,9 +140,9 @@ fun main(args: Array<String>) {
 
 private fun reloadOldMessage(optsAfterTaskId: String, commandExecution: CommandExecution, bot: Bot) {
     val variables = optsAfterTaskId.split("_")
-    val messageId = variables.getOrNull(0)?.toIntOrNull()
-    if (messageId != null) {
-        var postCalendarMetaInfo = find(messageId)
+    val metaInfoId = variables.getOrNull(0)?.toIntOrNull()
+    if (metaInfoId != null) {
+        var postCalendarMetaInfo = find(metaInfoId)
         if (postCalendarMetaInfo != null) {
             commandExecution.reloadCalendar(postCalendarMetaInfo)
                     .success { bot.editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }

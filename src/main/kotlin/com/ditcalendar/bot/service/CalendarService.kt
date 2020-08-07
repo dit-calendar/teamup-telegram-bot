@@ -48,13 +48,13 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
             this.apply {
                 var postCalendarMetaInfo = findOrCreate(chatId, messageId, this.id, startDate, endDate)
                 val tasksResulst = eventEndpoint.findEvents(this.id, startDate, endDate)
-                val constructor  = { task: Event, t: TelegramLinks -> TelegramTaskForAssignment(task, t, postCalendarMetaInfo.messageId)}
+                val constructor = { task: Event, t: TelegramLinks -> TelegramTaskForAssignment(task, t, postCalendarMetaInfo.id.value) }
                 tasksResulst.map {
                     this.apply {
                         this.startDate = startDate
                         this.endDate = endDate
                         this.tasks = it.events
-                                .map {it.fillWithTelegramLinks(constructor) }
+                                .map { it.fillWithTelegramLinks(constructor) }
                     }
                 }
             }
