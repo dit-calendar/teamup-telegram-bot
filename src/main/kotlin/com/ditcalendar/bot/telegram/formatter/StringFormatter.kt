@@ -32,7 +32,7 @@ private fun parseSuccess(result: Base): TelegramResponse =
                         calendarReloadCallbackNotification)
             is TelegramTaskForUnassignment ->
                 InlineMessageResponse(result.toMarkdown(),
-                        "unassign me", "$unassignCallbackCommand${result.task.id}", null)
+                        "unassign me", "$unassignCallbackCommand${result.task.id}_${result.postCalendarMetaInfoId}", null)
             is TelegramTaskForAssignment ->
                 MessageResponse("nicht implementiert", null)
             is TelegramTaskAfterUnassignment ->

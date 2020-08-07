@@ -2,10 +2,7 @@ package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.domain.dao.*
-import com.ditcalendar.bot.service.CalendarService
-import com.ditcalendar.bot.service.CommandExecution
-import com.ditcalendar.bot.service.assingAnnonCallbackCommand
-import com.ditcalendar.bot.service.assingWithNameCallbackCommand
+import com.ditcalendar.bot.service.*
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.telegram.service.*
@@ -77,10 +74,12 @@ fun main(args: Array<String>) {
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
                 response.success {
-                    if (request.startsWith(assingWithNameCallbackCommand) || request.startsWith(assingAnnonCallbackCommand)) {
+                    if (request.startsWith(assingWithNameCallbackCommand) || request.startsWith(assingAnnonCallbackCommand)
+                            || request.startsWith(unassignCallbackCommand)) {
                         val optsAfterTaskId = request
                                 .removePrefix(assingWithNameCallbackCommand)
                                 .removePrefix(assingAnnonCallbackCommand)
+                                .removePrefix(unassignCallbackCommand)
                                 .substringAfter("_")
 
                         bot.reloadOldMessage(optsAfterTaskId, commandExecution)

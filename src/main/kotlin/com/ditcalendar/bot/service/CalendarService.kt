@@ -25,13 +25,13 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
             calendarEndpoint.findSubcalendar(id)
                     .map { it.fillWithTasks(startDate, endDate, chatId, messageId) }
 
-    fun assignUserToTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskForUnassignment, Exception> =
+    fun assignUserToTask(taskId: String, telegramLink: TelegramLink, metaInfoId: Int): Result<TelegramTaskForUnassignment, Exception> =
             eventEndpoint
                     .getEvent(taskId)
                     .flatMap { oldTask ->
                         oldTask.apply { who = addUserToWho(who, telegramLink.telegramUserId.toString()) }
                         eventEndpoint.updateEvent(oldTask)
-                                .map { it.fillWithTelegramLinks(::TelegramTaskForUnassignment) }
+                                .map { it.fillWithTelegramLinks { task: Event, t: TelegramLinks -> TelegramTaskForUnassignment(task, t, metaInfoId) } }
                     }
 
     fun unassignUserFromTask(taskId: String, telegramLink: TelegramLink): Result<TelegramTaskAfterUnassignment, Exception> =

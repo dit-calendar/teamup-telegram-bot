@@ -21,7 +21,7 @@ class CommandExecution(private val calendarService: CalendarService) {
 
     fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
-                val taskId: String = callbaBackData.substringAfter(unassignCallbackCommand)
+                val taskId: String = callbaBackData.substringAfter(unassignCallbackCommand).substringBefore("_")
                 if (taskId.isNotBlank()) {
                     // if user not existing, the DB of Bot was maybe dropped
                     val telegramLink = findOrCreate(chatId, msgUserId)
@@ -41,11 +41,12 @@ class CommandExecution(private val calendarService: CalendarService) {
             } else
                 Result.error(InvalidRequest())
 
-    fun executeTaskAssignmentCommand(telegramLink: TelegramLink, opts: String): Result<TelegramTaskForUnassignment, Exception> {
+    private fun executeTaskAssignmentCommand(telegramLink: TelegramLink, opts: String): Result<TelegramTaskForUnassignment, Exception> {
         val variables = opts.substringAfter("_").split("_")
         val taskId = variables.getOrNull(0)
-        return if (taskId != null && taskId.isNotBlank())
-            calendarService.assignUserToTask(taskId, telegramLink)
+        val metaInfoId = variables.getOrNull(1)?.toInt()
+        return if (taskId != null && taskId.isNotBlank() && metaInfoId != null)
+            calendarService.assignUserToTask(taskId, telegramLink, metaInfoId)
         else
             Result.error(InvalidRequest())
     }
