@@ -1,7 +1,6 @@
 package com.ditcalendar.bot.domain.data
 
 import com.ditcalendar.bot.domain.dao.PostCalendarMetaInfoTable
-import com.ditcalendar.bot.domain.dao.TelegramLinksTable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID

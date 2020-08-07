@@ -83,7 +83,7 @@ fun main(args: Array<String>) {
                                 .removePrefix(assingAnnonCallbackCommand)
                                 .substringAfter("_")
 
-                        reloadOldMessage(optsAfterTaskId, commandExecution, bot)
+                        bot.reloadOldMessage(optsAfterTaskId, commandExecution)
                     }
                 }
             }
@@ -119,8 +119,8 @@ fun main(args: Array<String>) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
             if (opts != null) {
                 val response = commandExecution.executePublishCalendarCommand(opts, msg)
-                var messageResponse = bot.messageResponse(response, msg.chat.id)
-                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { it1 -> updateMessageId(it1, it.message_id) } }
+                val messageResponse = bot.messageResponse(response, msg.chat.id)
+                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
@@ -138,14 +138,14 @@ fun main(args: Array<String>) {
     bot.start()
 }
 
-private fun reloadOldMessage(optsAfterTaskId: String, commandExecution: CommandExecution, bot: Bot) {
+private fun Bot.reloadOldMessage(optsAfterTaskId: String, commandExecution: CommandExecution) {
     val variables = optsAfterTaskId.split("_")
     val metaInfoId = variables.getOrNull(0)?.toIntOrNull()
     if (metaInfoId != null) {
-        var postCalendarMetaInfo = find(metaInfoId)
+        val postCalendarMetaInfo = find(metaInfoId)
         if (postCalendarMetaInfo != null) {
             commandExecution.reloadCalendar(postCalendarMetaInfo)
-                    .success { bot.editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
+                    .success { editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
         }
     }
 }

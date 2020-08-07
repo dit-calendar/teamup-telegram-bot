@@ -69,7 +69,7 @@ class CommandExecution(private val calendarService: CalendarService) {
         } else Result.error(InvalidRequest())
     }
 
-    fun reloadCalendar(opts: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> {
+    private fun reloadCalendar(opts: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> {
         val variables = opts.split("_")
         val subCalendarId = variables.getOrNull(0)?.toIntOrNull()
         val startDate = variables.getOrNull(1)
