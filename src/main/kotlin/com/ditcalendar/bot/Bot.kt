@@ -85,15 +85,7 @@ fun main(args: Array<String>) {
                                 .removePrefix(assingAnnonCallbackCommand)
                                 .substringAfter("_")
 
-                        val variables = optsAfterTaskId.split("_")
-                        val messageId = variables.getOrNull(0)?.toIntOrNull()
-                        if (messageId != null) {
-                            var postCalendarMetaInfo = find(messageId)
-                            if (postCalendarMetaInfo != null) {
-                                commandExecution.reloadCalendar(postCalendarMetaInfo)
-                                        .success { bot.editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
-                            }
-                        }
+                        reloadOldMessage(optsAfterTaskId, commandExecution, bot)
                     }
                 }
             }
@@ -145,4 +137,16 @@ fun main(args: Array<String>) {
     }
 
     bot.start()
+}
+
+private fun reloadOldMessage(optsAfterTaskId: String, commandExecution: CommandExecution, bot: Bot) {
+    val variables = optsAfterTaskId.split("_")
+    val messageId = variables.getOrNull(0)?.toIntOrNull()
+    if (messageId != null) {
+        var postCalendarMetaInfo = find(messageId)
+        if (postCalendarMetaInfo != null) {
+            commandExecution.reloadCalendar(postCalendarMetaInfo)
+                    .success { bot.editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
+        }
+    }
 }
