@@ -86,7 +86,7 @@ fun main(args: Array<String>) {
                                 .substringAfter("_")
 
                         val variables = optsAfterTaskId.split("_")
-                        val messageId = variables.getOrNull(3)?.toIntOrNull()
+                        val messageId = variables.getOrNull(0)?.toIntOrNull()
                         if (messageId != null) {
                             var postCalendarMetaInfo = find(messageId)
                             if (postCalendarMetaInfo != null) {
