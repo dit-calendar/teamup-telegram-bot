@@ -25,5 +25,5 @@ fun nextDayAfterMidnight(startDate: String): String {
     val c = Calendar.getInstance()
     c.time = df.parse(startDate)
     c.add(Calendar.DATE, 1)
-    return df.format(c.time) + "T04:00:00"
+    return df.format(c.time)
 }

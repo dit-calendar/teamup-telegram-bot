@@ -28,7 +28,7 @@ fun TelegramTaskAssignment.toMarkdown(): String {
     return when (this) {
         is TelegramTaskForAssignment ->
             "\uD83D\uDD51 *${task.formatTime()}* \\- ${task.title.withMDEscape()}" + formattedDescription + System.lineSeparator() +
-                    "Who?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=$assignDeepLinkCommand${task.id})"
+                    "Who?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=$assignDeepLinkCommand${task.id}_$postCalendarMetaInfoId)"
 
         is TelegramTaskForUnassignment -> {
             "\uD83C\uDF89 *successfully assigned:*" + System.lineSeparator() +

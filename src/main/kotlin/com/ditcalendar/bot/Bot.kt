@@ -1,11 +1,8 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
-import com.ditcalendar.bot.domain.dao.TelegramLinksTable
-import com.ditcalendar.bot.service.CalendarService
-import com.ditcalendar.bot.service.CommandExecution
-import com.ditcalendar.bot.service.assingAnnonCallbackCommand
-import com.ditcalendar.bot.service.assingWithNameCallbackCommand
+import com.ditcalendar.bot.domain.dao.*
+import com.ditcalendar.bot.service.*
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.telegram.service.*
@@ -45,7 +42,7 @@ fun main(args: Array<String>) {
 
         Database.connect(dbUrl, driver = "org.postgresql.Driver",
                 user = username, password = password)
-        transaction { SchemaUtils.create(TelegramLinksTable) }
+        transaction { SchemaUtils.create(TelegramLinksTable, PostCalendarMetaInfoTable) }
     }
 
     createDB()
@@ -73,22 +70,19 @@ fun main(args: Array<String>) {
                 bot.answerCallbackQuery(callbackQuery.id, wrongRequestResponse)
             } else {
                 val msgUser = callbackQuery.from
-                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request)
+                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request, originallyMessage)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
                 response.success {
-                    if (request.startsWith(assingWithNameCallbackCommand) || request.startsWith(assingAnnonCallbackCommand)) {
+                    if (request.startsWith(assingWithNameCallbackCommand) || request.startsWith(assingAnnonCallbackCommand)
+                            || request.startsWith(unassignCallbackCommand)) {
                         val optsAfterTaskId = request
                                 .removePrefix(assingWithNameCallbackCommand)
                                 .removePrefix(assingAnnonCallbackCommand)
+                                .removePrefix(unassignCallbackCommand)
                                 .substringAfter("_")
 
-                        val variables = optsAfterTaskId.split("_")
-                        val chatId = variables.getOrNull(3)?.toLongOrNull()
-                        val messageId = variables.getOrNull(4)?.toIntOrNull()
-                        if (chatId != null && messageId != null)
-                            commandExecution.reloadCalendar(optsAfterTaskId)
-                                    .success { bot.editOriginalCalendarMessage(it, chatId, messageId) }
+                        bot.reloadOldMessage(optsAfterTaskId, commandExecution)
                     }
                 }
             }
@@ -123,8 +117,9 @@ fun main(args: Array<String>) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             bot.deleteMessage(msg.chat.id, msg.message_id)
             if (opts != null) {
-                val response = commandExecution.executePublishCalendarCommand(opts)
-                bot.messageResponse(response, msg.chat.id)
+                val response = commandExecution.executePublishCalendarCommand(opts, msg)
+                val messageResponse = bot.messageResponse(response, msg.chat.id)
+                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
@@ -140,4 +135,16 @@ fun main(args: Array<String>) {
     }
 
     bot.start()
+}
+
+private fun Bot.reloadOldMessage(optsAfterTaskId: String, commandExecution: CommandExecution) {
+    val variables = optsAfterTaskId.split("_")
+    val metaInfoId = variables.getOrNull(0)?.toIntOrNull()
+    if (metaInfoId != null) {
+        val postCalendarMetaInfo = find(metaInfoId)
+        if (postCalendarMetaInfo != null) {
+            commandExecution.reloadCalendar(postCalendarMetaInfo)
+                    .success { editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
+        }
+    }
 }
