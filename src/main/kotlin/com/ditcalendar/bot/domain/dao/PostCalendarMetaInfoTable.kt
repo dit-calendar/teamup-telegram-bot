@@ -26,5 +26,5 @@ fun findOrCreate(newChatId: Long, msgUserId: Int, subCalendar: Int, start: Strin
 }
 
 fun find(id: Int): PostCalendarMetaInfo? = transaction {
-    PostCalendarMetaInfo.findById(id)
+    PostCalendarMetaInfo.find { PostCalendarMetaInfoTable.messageId eq id }.firstOrNull()
 }
