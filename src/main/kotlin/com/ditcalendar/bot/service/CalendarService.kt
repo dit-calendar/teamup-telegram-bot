@@ -1,6 +1,7 @@
 package com.ditcalendar.bot.service
 
 import com.ditcalendar.bot.domain.dao.find
+import com.ditcalendar.bot.domain.dao.findOrCreate
 import com.ditcalendar.bot.domain.data.*
 import com.ditcalendar.bot.teamup.data.Event
 import com.ditcalendar.bot.teamup.data.SubCalendar
@@ -45,8 +46,9 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
 
     private fun SubCalendar.fillWithTasks(startDate: String, endDate: String, chatId: Long, messageId: Int) =
             this.apply {
+                var postCalendarMetaInfo = findOrCreate(chatId, messageId, this.id, startDate, endDate)
                 val tasksResulst = eventEndpoint.findEvents(this.id, startDate, endDate)
-                val constructor  = { task: Event, t: TelegramLinks -> TelegramTaskForAssignment(task, t, MetaInfo(chatId, messageId, this.id, startDate, endDate))}
+                val constructor  = { task: Event, t: TelegramLinks -> TelegramTaskForAssignment(task, t, postCalendarMetaInfo.messageId)}
                 tasksResulst.map {
                     this.apply {
                         this.startDate = startDate

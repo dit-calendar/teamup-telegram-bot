@@ -3,6 +3,7 @@ package com.ditcalendar.bot
 import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.domain.dao.PostCalendarMetaInfoTable
 import com.ditcalendar.bot.domain.dao.TelegramLinksTable
+import com.ditcalendar.bot.domain.dao.find
 import com.ditcalendar.bot.service.CalendarService
 import com.ditcalendar.bot.service.CommandExecution
 import com.ditcalendar.bot.service.assingAnnonCallbackCommand
@@ -85,11 +86,14 @@ fun main(args: Array<String>) {
                                 .substringAfter("_")
 
                         val variables = optsAfterTaskId.split("_")
-                        val chatId = variables.getOrNull(3)?.toLongOrNull()
-                        val messageId = variables.getOrNull(4)?.toIntOrNull()
-                        if (chatId != null && messageId != null)
-                            commandExecution.reloadCalendar(optsAfterTaskId, chatId, messageId)
-                                    .success { bot.editOriginalCalendarMessage(it, chatId, messageId) }
+                        val messageId = variables.getOrNull(3)?.toIntOrNull()
+                        if (messageId != null) {
+                            var postCalendarMetaInfo = find(messageId)
+                            if (postCalendarMetaInfo != null) {
+                                commandExecution.reloadCalendar(postCalendarMetaInfo)
+                                        .success { bot.editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
+                            }
+                        }
                     }
                 }
             }

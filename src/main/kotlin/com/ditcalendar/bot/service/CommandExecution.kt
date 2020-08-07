@@ -3,6 +3,7 @@ package com.ditcalendar.bot.service
 import com.ditcalendar.bot.domain.dao.findOrCreate
 import com.ditcalendar.bot.domain.dao.updateName
 import com.ditcalendar.bot.domain.data.InvalidRequest
+import com.ditcalendar.bot.domain.data.PostCalendarMetaInfo
 import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.domain.data.TelegramTaskForUnassignment
 import com.ditcalendar.bot.teamup.data.SubCalendar
@@ -41,8 +42,9 @@ class CommandExecution(private val calendarService: CalendarService) {
                 Result.error(InvalidRequest())
 
     fun executeTaskAssignmentCommand(telegramLink: TelegramLink, opts: String): Result<TelegramTaskForUnassignment, Exception> {
-        val taskId: String = opts.substringAfter("_")
-        return if (taskId.isNotBlank())
+        val variables = opts.substringAfter("_").split("_")
+        val taskId = variables.getOrNull(0)
+        return if (taskId != null && taskId.isNotBlank())
             calendarService.assignUserToTask(taskId, telegramLink)
         else
             Result.error(InvalidRequest())
@@ -75,6 +77,12 @@ class CommandExecution(private val calendarService: CalendarService) {
 
         return if (subCalendarId != null && startDate != null && endDate != null)
             calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, chatId, messageId)
+        else Result.error(InvalidRequest())
+    }
+
+    fun reloadCalendar(postCalendarMetaInfo: PostCalendarMetaInfo?): Result<SubCalendar, Exception> {
+        return if (postCalendarMetaInfo != null)
+            calendarService.getCalendarAndTask(postCalendarMetaInfo.subCalendarId, postCalendarMetaInfo.startDate, postCalendarMetaInfo.endDate, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId)
         else Result.error(InvalidRequest())
     }
 }
