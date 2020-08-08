@@ -9,16 +9,16 @@ you can post it in your telegram group/channel, so a person can assign hirself
 <img src="doc/img/telegram-bot.gif" alt="telegram-gif"/>
 
 
-## how to use
+# how to use
 To use this application in your telegram group, you must first complete following steps:
 1. create a calendar on [teamup](https://www.teamup.com/)
 2. create a telegram Bot
    * start a conversation with [@Botfather](https://t.me/botfather) and write `/newbot`
    * give your Bot a name, maybe a nice picture and **please mention this website in your Bot description**
-   * invite the new Bot in your telegram group
 3. start the program for your telegram Bot by clicking on
     [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/dit-calendar/teamup-telegram-bot/tree/master) _(you need an account but it's free)_
    * it will build&start the program from the current source code
+4. invite the new Bot to a telegram group/channel and post `/postcalendar CalendarName Date` e.g. `/postcalendar VeKü 2020-08-26`
 
 **This application is still in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
 
@@ -27,7 +27,7 @@ _As alternative to teamup you can also use [dit-calendar](https://github.com/dit
 ### how to update
 After this program is deployed to heroku **it will not be updated automatically!** If you are interested in more features, you should check out [new releases](https://github.com/dit-calendar/teamup-telegram-bot/releases) from time to time.
 
-To update your bot manually, you have to delete the program in heroku (under settings) and click on the heroku deploy button from step 3. again. Unfortunately this will cause data loos (only usernames) at the moment. To avoid problems you have to click on the reload button in your telegram group of each still relevant calendar or repost them again.
+To update your bot manually, you have to delete the program in heroku (under settings) and click on the heroku deploy button from step 3. again. Unfortunately this will cause data loss at the moment (but only usernames). To avoid problems you have to click on the reload button in your telegram group of each still relevant calendar or repost them again.
 
 
 # for developers
