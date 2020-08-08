@@ -7,10 +7,7 @@ import java.util.*
 
 private val df: DateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-fun isDateInputValid(startDate: String?, endDate: String?): Boolean {
-    if (startDate == null)
-        return false
-
+fun isDateInputValid(startDate: String, endDate: String?): Boolean {
     val checkDateInput = Result.of<Unit, Exception> {
         df.parse(startDate)
         if (endDate != null) df.parse(endDate)

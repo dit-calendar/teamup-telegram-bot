@@ -17,10 +17,12 @@ import java.net.URI
 
 val helpMessage =
         """
-            Commands which the bot accept
+            Commands which the bot accepts
             /postcalendar {Subcalendar name} {start date as yyyy-MM-dd} {optional end date as yyyy-MM-dd} = Post subcalendar in channel
             /help = show all bot commands
         """.trimIndent()
+
+const val BOT_COMMAND_POST_CALENDAR = "/postcalendar"
 
 fun main(args: Array<String>) {
 
@@ -115,22 +117,22 @@ fun main(args: Array<String>) {
 
     fun postCalendarCommand(msg: Message, opts: String?) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
-            bot.deleteMessage(msg.chat.id, msg.message_id)
             if (opts != null) {
-                val response = commandExecution.executePublishCalendarCommand(opts, msg)
+                val response = commandExecution.executePublishCalendarCommand(opts.removePrefix(BOT_COMMAND_POST_CALENDAR), msg)
+                response.success { bot.deleteMessage(msg.chat.id, msg.message_id) }
                 val messageResponse = bot.messageResponse(response, msg.chat.id)
                 messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
 
-    bot.onCommand("/postcalendar") { msg, opts ->
+    bot.onCommand(BOT_COMMAND_POST_CALENDAR) { msg, opts ->
         postCalendarCommand(msg, opts)
     }
 
     bot.onChannelPost { msg ->
         val msgText = msg.text
-        if (msgText != null && msgText.startsWith("/postcalendar"))
+        if (msgText != null && msgText.startsWith(BOT_COMMAND_POST_CALENDAR))
             postCalendarCommand(msg, msgText.substringAfter(" "))
     }
 

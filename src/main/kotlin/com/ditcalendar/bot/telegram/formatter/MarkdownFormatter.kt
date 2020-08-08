@@ -60,11 +60,11 @@ private fun TelegramLinks.toMarkdown(): String {
 
 
 fun TelegramTaskAssignments.toMarkdown(): String = System.lineSeparator() +
-        joinToString(separator = System.lineSeparator()) { it.toMarkdown() }
+        if (this.isEmpty()) "no tasks found" else joinToString(separator = System.lineSeparator()) { it.toMarkdown() }
 
 fun SubCalendar.toMarkdown(): String {
     return """
-            *$name* \- ${dateFormatter.format(tasks[0].task.startDate).withMDEscape()}${System.lineSeparator()}
+            *$name* \- ${startDate!!.withMDEscape()}${System.lineSeparator()}
         """.trimIndent() + tasks.toMarkdown()
 }
 

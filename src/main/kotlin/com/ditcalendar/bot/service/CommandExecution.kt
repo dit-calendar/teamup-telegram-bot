@@ -6,6 +6,7 @@ import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.domain.data.PostCalendarMetaInfo
 import com.ditcalendar.bot.domain.data.TelegramLink
 import com.ditcalendar.bot.domain.data.TelegramTaskForUnassignment
+import com.ditcalendar.bot.helpMessage
 import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.elbekD.bot.types.Message
@@ -57,17 +58,17 @@ class CommandExecution(private val calendarService: CalendarService) {
         val startDate = variables.getOrNull(1)
         var endDate = variables.getOrNull(2)
 
-        return if (subCalendarName != null) {
+        return if (subCalendarName != null && subCalendarName.isNotBlank() && startDate != null) {
 
             if (isDateInputValid(startDate, endDate)) {
                 if (endDate == null)
-                    endDate = nextDayAfterMidnight(startDate!!)
+                    endDate = nextDayAfterMidnight(startDate)
 
-                calendarService.getCalendarAndTask(subCalendarName, startDate!!, endDate, msg.chat.id, msg.message_id)
+                calendarService.getCalendarAndTask(subCalendarName, startDate, endDate, msg.chat.id, msg.message_id)
             } else
                 Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
-        } else Result.error(InvalidRequest())
+        } else Result.error(InvalidRequest(helpMessage))
     }
 
     private fun reloadCalendar(opts: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> {
