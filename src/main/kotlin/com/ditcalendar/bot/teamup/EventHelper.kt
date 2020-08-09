@@ -1,4 +1,4 @@
-package com.ditcalendar.bot.telegram.service
+package com.ditcalendar.bot.teamup
 
 fun removeUserFromWho(oldWho: String?, telegramLinkUserId: String): String? =
         when {

@@ -58,7 +58,7 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
     }
 }
 
-fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: String, callbackNotificationText: String?) {
+private fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: String, callbackNotificationText: String?) {
     this.handle { _, throwable ->
         if (throwable == null || throwable.message!!.contains("Bad Request: message is not modified"))
             if (callbackNotificationText != null)

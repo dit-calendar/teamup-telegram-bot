@@ -15,8 +15,6 @@ private val botName = config[bot_name]
 
 private val formatter = SimpleDateFormat("HH:mm")
 
-private val dateFormatter = SimpleDateFormat("dd.MM")
-
 fun TelegramTaskAssignment.toMarkdown(): String {
     val formattedDescription =
             if (task.notes != null && task.notes!!.isNotBlank())

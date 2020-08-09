@@ -77,14 +77,15 @@ class CommandExecution(private val calendarService: CalendarService) {
         val startDate = variables.getOrNull(1)
         val endDate = variables.getOrNull(2)
 
-        return if (subCalendarId != null && startDate != null && endDate != null)
-            calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, chatId, messageId)
-        else Result.error(InvalidRequest())
+        return if (subCalendarId != null && startDate != null && endDate != null) {
+            val postCalendarMetaInfo = findOrCreate(chatId, messageId, subCalendarId, startDate, endDate)
+            calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, postCalendarMetaInfo)
+        } else Result.error(InvalidRequest())
     }
 
     fun reloadCalendar(postCalendarMetaInfo: PostCalendarMetaInfo?): Result<SubCalendar, Exception> {
         return if (postCalendarMetaInfo != null)
-            calendarService.getCalendarAndTask(postCalendarMetaInfo.subCalendarId, postCalendarMetaInfo.startDate, postCalendarMetaInfo.endDate, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId)
+            calendarService.getCalendarAndTask(postCalendarMetaInfo.subCalendarId, postCalendarMetaInfo.startDate, postCalendarMetaInfo.endDate, postCalendarMetaInfo)
         else Result.error(InvalidRequest())
     }
 }
