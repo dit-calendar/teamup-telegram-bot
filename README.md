@@ -20,7 +20,7 @@ To use this application in your telegram group, you must first complete followin
    * it will build&start the program from the current source code
 4. invite the new Bot to a telegram group/channel and post `/postcalendar CalendarName Date` e.g. `/postcalendar VeKü 2020-08-26`
 
-**This application is still in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
+**This application is in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
 
 _As alternative to teamup you can also use [dit-calendar](https://github.com/dit-calendar/dit-calendar.github.io)_
 
