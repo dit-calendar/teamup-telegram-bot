@@ -1,19 +1,20 @@
 package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
+import com.ditcalendar.bot.domain.createDB
 import com.ditcalendar.bot.domain.dao.*
+import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.service.*
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
 import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.telegram.service.*
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
+import com.elbekD.bot.types.InlineKeyboardButton
+import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
+import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.success
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import java.net.URI
 
 val helpMessage =
         """
@@ -27,27 +28,12 @@ const val BOT_COMMAND_POST_CALENDAR = "/postcalendar"
 fun main(args: Array<String>) {
 
     val config by config()
-
     val token = config[telegram_token]
     val herokuApp = config[heroku_app_name]
-    val commandExecution = CommandExecution(CalendarService(CalendarEndpoint(), EventEndpoint()))
-    val databaseUrl = config[database_url]
-
-    fun createDB() {
-        val dbUri = URI(databaseUrl)
-        val username = dbUri.userInfo.split(":")[0]
-        val password = dbUri.userInfo.split(":")[1]
-        var dbUrl = "jdbc:postgresql://" + dbUri.host + ':' + dbUri.port + dbUri.path
-
-        if (herokuApp.isNotBlank()) //custom config logic needed because of config lib
-            dbUrl += "?sslmode=require"
-
-        Database.connect(dbUrl, driver = "org.postgresql.Driver",
-                user = username, password = password)
-        transaction { SchemaUtils.create(TelegramLinksTable, PostCalendarMetaInfoTable) }
-    }
 
     createDB()
+
+    val commandExecution = CommandExecution(CalendarService(CalendarEndpoint(), EventEndpoint()))
 
     val bot = if (config[webhook_is_enabled]) {
         Bot.createWebhook(config[bot_name], token) {
@@ -62,6 +48,45 @@ fun main(args: Array<String>) {
             }
         }
     } else Bot.createPolling(config[bot_name], token)
+
+    fun postCalendarCommand(msg: Message, opts: String?) {
+        checkGlobalStateBeforeHandling(msg.message_id.toString()) {
+            if (opts != null) {
+                val response = commandExecution.executePublishCalendarCommand(opts.removePrefix(BOT_COMMAND_POST_CALENDAR), msg)
+                response.success { bot.deleteMessage(msg.chat.id, msg.message_id) }
+                val messageResponse = bot.messageResponse(response, msg.chat.id)
+                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
+            } else bot.sendMessage(msg.chat.id, helpMessage)
+        }
+    }
+
+    fun reloadOldMessage(optsAfterTaskId: String) {
+        val variables = optsAfterTaskId.split("_")
+        val metaInfoId = variables.getOrNull(0)?.toIntOrNull()
+        if (metaInfoId != null) {
+            val postCalendarMetaInfo = find(metaInfoId)
+            if (postCalendarMetaInfo != null) {
+                commandExecution.reloadCalendar(postCalendarMetaInfo)
+                        .success { bot.editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
+            }
+        }
+    }
+
+    fun responseForDeeplinkAssignment(chatId: Long, opts: String) {
+        if (opts.startsWith(assignDeepLinkCommand)) {
+            val callbackOpts: String = opts.substringAfter(assignDeepLinkCommand)
+            if (callbackOpts.isNotBlank()) {
+                val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + callbackOpts)
+                val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + callbackOpts)
+                val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
+                bot.sendMessage(chatId, "Can I use your name?", parseMode, true, markup = inlineKeyboardMarkup)
+            } else {
+                bot.messageResponse(Result.error(InvalidRequest()), chatId)
+            }
+        } else {
+            bot.sendMessage(chatId, helpMessage)
+        }
+    }
 
     bot.onCallbackQuery { callbackQuery ->
         checkGlobalStateBeforeHandling(callbackQuery.id) {
@@ -84,7 +109,7 @@ fun main(args: Array<String>) {
                                 .removePrefix(unassignCallbackCommand)
                                 .substringAfter("_")
 
-                        bot.reloadOldMessage(optsAfterTaskId, commandExecution)
+                        reloadOldMessage(optsAfterTaskId)
                     }
                 }
             }
@@ -102,7 +127,7 @@ fun main(args: Array<String>) {
                 bot.sendMessage(msg.chat.id, wrongRequestResponse)
             } else {
                 if (opts != null)
-                    bot.responseForDeeplink(msg.chat.id, opts)
+                    responseForDeeplinkAssignment(msg.chat.id, opts)
                 else
                     bot.sendMessage(msg.chat.id, helpMessage)
             }
@@ -112,17 +137,6 @@ fun main(args: Array<String>) {
     bot.onCommand("/help") { msg, _ ->
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             bot.sendMessage(msg.chat.id, helpMessage)
-        }
-    }
-
-    fun postCalendarCommand(msg: Message, opts: String?) {
-        checkGlobalStateBeforeHandling(msg.message_id.toString()) {
-            if (opts != null) {
-                val response = commandExecution.executePublishCalendarCommand(opts.removePrefix(BOT_COMMAND_POST_CALENDAR), msg)
-                response.success { bot.deleteMessage(msg.chat.id, msg.message_id) }
-                val messageResponse = bot.messageResponse(response, msg.chat.id)
-                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
-            } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
 
@@ -137,16 +151,4 @@ fun main(args: Array<String>) {
     }
 
     bot.start()
-}
-
-private fun Bot.reloadOldMessage(optsAfterTaskId: String, commandExecution: CommandExecution) {
-    val variables = optsAfterTaskId.split("_")
-    val metaInfoId = variables.getOrNull(0)?.toIntOrNull()
-    if (metaInfoId != null) {
-        val postCalendarMetaInfo = find(metaInfoId)
-        if (postCalendarMetaInfo != null) {
-            commandExecution.reloadCalendar(postCalendarMetaInfo)
-                    .success { editOriginalCalendarMessage(it, postCalendarMetaInfo.chatId, postCalendarMetaInfo.messageId) }
-        }
-    }
 }

@@ -1,10 +1,5 @@
 package com.ditcalendar.bot.telegram.service
 
-import com.ditcalendar.bot.domain.data.InvalidRequest
-import com.ditcalendar.bot.helpMessage
-import com.ditcalendar.bot.service.assignDeepLinkCommand
-import com.ditcalendar.bot.service.assingAnnonCallbackCommand
-import com.ditcalendar.bot.service.assingWithNameCallbackCommand
 import com.ditcalendar.bot.service.reloadCallbackCommand
 import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
@@ -58,14 +53,6 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
     }
 }
 
-private fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: String, callbackNotificationText: String?) {
-    this.handle { _, throwable ->
-        if (throwable == null || throwable.message!!.contains("Bad Request: message is not modified"))
-            if (callbackNotificationText != null)
-                bot.answerCallbackQuery(calbackQueryId, callbackNotificationText)
-    }
-}
-
 fun Bot.editOriginalCalendarMessage(calendar: SubCalendar, chatId: Long, messageId: Int) {
     val inlineButton = InlineKeyboardButton(reloadButtonText, callback_data = "$reloadCallbackCommand${calendar.id}_${calendar.startDate}_${calendar.endDate}")
     val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
@@ -73,18 +60,10 @@ fun Bot.editOriginalCalendarMessage(calendar: SubCalendar, chatId: Long, message
             parseMode = parseMode, disableWebPagePreview = true, markup = inlineKeyboardMarkup)
 }
 
-fun Bot.responseForDeeplink(chatId: Long, opts: String) {
-    if (opts.startsWith(assignDeepLinkCommand)) {
-        val callbackOpts: String = opts.substringAfter(assignDeepLinkCommand)
-        if (callbackOpts.isNotBlank()) {
-            val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + callbackOpts)
-            val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + callbackOpts)
-            val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
-            sendMessage(chatId, "Can I use your name?", parseMode, true, markup = inlineKeyboardMarkup)
-        } else {
-            messageResponse(Result.error(InvalidRequest()), chatId)
-        }
-    } else {
-        sendMessage(chatId, helpMessage)
+private fun CompletableFuture<Message>.handleCallbackQuery(bot: Bot, calbackQueryId: String, callbackNotificationText: String?) {
+    this.handle { _, throwable ->
+        if (throwable == null || throwable.message!!.contains("Bad Request: message is not modified"))
+            if (callbackNotificationText != null)
+                bot.answerCallbackQuery(calbackQueryId, callbackNotificationText)
     }
 }
