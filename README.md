@@ -1,6 +1,6 @@
 # teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/teamup-telegram-bot)
 
-This is a tool to allow user-event assignment via telegram for the [teamup calendar](https://www.teamup.com/). It designed to help (public/collective/participatory/collaborative) groups with self-administration of work.
+This is a tool to allow user-event assignment via [telegram](https://telegram.org/) for the [teamup calendar](https://www.teamup.com/). It designed to help (public/collective/participatory/collaborative) groups with self-administration of work.
 
 after you created an event in your teamup calendar
 
