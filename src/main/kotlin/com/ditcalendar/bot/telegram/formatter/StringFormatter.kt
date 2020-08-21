@@ -1,48 +1,17 @@
 package com.ditcalendar.bot.telegram.formatter
 
-import com.ditcalendar.bot.domain.data.*
-import com.ditcalendar.bot.service.reloadCallbackCommand
-import com.ditcalendar.bot.service.unassignCallbackCommand
-import com.ditcalendar.bot.teamup.data.SubCalendar
-import com.ditcalendar.bot.teamup.data.core.Base
-import com.ditcalendar.bot.telegram.data.InlineMessageResponse
-import com.ditcalendar.bot.telegram.data.MessageResponse
-import com.ditcalendar.bot.telegram.data.TelegramResponse
+import com.ditcalendar.bot.domain.data.DitBotError
+import com.ditcalendar.bot.domain.data.InvalidRequest
+import com.ditcalendar.bot.domain.data.MultipleSubcalendarsFound
+import com.ditcalendar.bot.domain.data.NoSubcalendarFound
 import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.result.Result
 import kotlinx.serialization.json.JsonDecodingException
 
 const val reloadButtonText = "reload"
 const val calendarReloadCallbackNotification = "calendar was reloaded"
 
-fun parseResponse(result: Result<Base, Exception>): TelegramResponse =
-        when (result) {
-            is Result.Success -> parseSuccess(result.value)
-            is Result.Failure -> {
-                result.error.printStackTrace()
-                parseError(result.error)
-            }
-        }
-
-private fun parseSuccess(result: Base): TelegramResponse =
-        when (result) {
-            is SubCalendar ->
-                InlineMessageResponse(result.toMarkdown() + System.lineSeparator(), reloadButtonText,
-                        "$reloadCallbackCommand${result.id}_${result.startDate}_${result.endDate}",
-                        calendarReloadCallbackNotification)
-            is TelegramTaskForUnassignment ->
-                InlineMessageResponse(result.toMarkdown(),
-                        "unassign me", "$unassignCallbackCommand${result.task.id}_${result.postCalendarMetaInfoId}", null)
-            is TelegramTaskForAssignment ->
-                MessageResponse("nicht implementiert", null)
-            is TelegramTaskAfterUnassignment ->
-                MessageResponse(result.toMarkdown(), "erfolgreich ausgetragen")
-            else ->
-                MessageResponse("interner server Fehler", null)
-        }
-
-private fun parseError(error: Exception): TelegramResponse =
-        MessageResponse(when (error) {
+fun parseErrorToString(error: Exception): String =
+        when (error) {
             is FuelError -> {
                 when (error.response.statusCode) {
                     401 -> "Bot is missing necessary access rights"
@@ -64,4 +33,4 @@ private fun parseError(error: Exception): TelegramResponse =
                 }
             }
             else -> "unknown error"
-        }.withMDEscape(), null)
+        }.withMDEscape()

@@ -2,7 +2,9 @@ package com.ditcalendar.bot
 
 import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.domain.createDB
-import com.ditcalendar.bot.domain.dao.*
+import com.ditcalendar.bot.domain.dao.find
+import com.ditcalendar.bot.domain.dao.findByMessageId
+import com.ditcalendar.bot.domain.dao.updateMessageId
 import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.service.*
 import com.ditcalendar.bot.teamup.endpoint.CalendarEndpoint
@@ -10,8 +12,6 @@ import com.ditcalendar.bot.teamup.endpoint.EventEndpoint
 import com.ditcalendar.bot.telegram.service.*
 import com.elbekD.bot.Bot
 import com.elbekD.bot.server
-import com.elbekD.bot.types.InlineKeyboardButton
-import com.elbekD.bot.types.InlineKeyboardMarkup
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.success
@@ -54,7 +54,7 @@ fun main(args: Array<String>) {
             if (opts != null) {
                 val response = commandExecution.executePublishCalendarCommand(opts.removePrefix(BOT_COMMAND_POST_CALENDAR), msg)
                 response.success { bot.deleteMessage(msg.chat.id, msg.message_id) }
-                val messageResponse = bot.messageResponse(response, msg.chat.id)
+                val messageResponse = bot.commandResponse(response, msg.chat.id)
                 messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
@@ -76,12 +76,9 @@ fun main(args: Array<String>) {
         if (opts.startsWith(assignDeepLinkCommand)) {
             val callbackOpts: String = opts.substringAfter(assignDeepLinkCommand)
             if (callbackOpts.isNotBlank()) {
-                val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + callbackOpts)
-                val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + callbackOpts)
-                val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
-                bot.sendMessage(chatId, "Can I use your name?", parseMode, true, markup = inlineKeyboardMarkup)
+                bot.deepLinkResponse(callbackOpts, chatId)
             } else {
-                bot.messageResponse(Result.error(InvalidRequest()), chatId)
+                bot.commandResponse(Result.error(InvalidRequest()), chatId)
             }
         } else {
             bot.sendMessage(chatId, helpMessage)
