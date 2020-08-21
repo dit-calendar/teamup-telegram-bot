@@ -74,8 +74,8 @@ fun Bot.callbackResponse(response: Result<Base, Exception>, callbackQuery: Callb
 
 fun Bot.deepLinkResponse(callbackOpts: String, chatId: Long) {
     val assignMeButton = InlineKeyboardButton("With telegram name", callback_data = assingWithNameCallbackCommand + callbackOpts)
-    val annonAssignMeButton = InlineKeyboardButton("Annonym", callback_data = assingAnnonCallbackCommand + callbackOpts)
-    val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, annonAssignMeButton)))
+    val anonAssignMeButton = InlineKeyboardButton("anonymous", callback_data = assingAnnonCallbackCommand + callbackOpts)
+    val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(assignMeButton, anonAssignMeButton)))
     sendMessage(chatId, "Can I use your name?", parseMode, true, markup = inlineKeyboardMarkup)
 }
 
