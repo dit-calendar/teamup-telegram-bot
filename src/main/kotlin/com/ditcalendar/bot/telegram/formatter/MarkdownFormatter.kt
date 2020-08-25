@@ -13,8 +13,6 @@ private val config by config()
 
 private val botName = config[bot_name]
 
-private val formatter = SimpleDateFormat("HH:mm")
-
 fun TelegramTaskAssignment.toMarkdown(): String {
     val formattedDescription =
             if (task.notes != null && task.notes!!.isNotBlank())
@@ -28,25 +26,29 @@ fun TelegramTaskAssignment.toMarkdown(): String {
             "\uD83D\uDD51 *${task.formatTime()}* \\- ${task.title.withMDEscape()}" + formattedDescription + System.lineSeparator() +
                     "Who?: ${assignedUsers.toMarkdown()} [assign me](https://t.me/$botName?start=$assignDeepLinkCommand${task.id}_$postCalendarMetaInfoId)"
 
-        is TelegramTaskForUnassignment -> {
+        is TelegramTaskForUnassignment ->
             "\uD83C\uDF89 *successfully assigned:*" + System.lineSeparator() +
+                    task.formatDate() + System.lineSeparator() +
                     "*${task.formatTime()}* \\- ${task.title.withMDEscape()}$formattedDescription" + System.lineSeparator() +
                     "Who?: ${assignedUsers.toMarkdown()}"
-        }
 
         is TelegramTaskAfterUnassignment ->
             """
                 *successfully removed from*:
+                ${task.formatDate()}
                 *${task.formatTime()}* \- ${task.title.withMDEscape()}
             """.trimIndent()
     }
 }
 
 private fun Event.formatTime(): String {
+    val formatter = SimpleDateFormat("HH:mm")
     var timeString = formatter.format(this.startDate)
     timeString += " \\- " + formatter.format(this.endDate)
     return timeString
 }
+
+private fun Event.formatDate(): String = SimpleDateFormat("dd.MM.yyyy").format(this.startDate).withMDEscape()
 
 @JvmName("toMarkdownForTelegramLinks")
 private fun TelegramLinks.toMarkdown(): String {
