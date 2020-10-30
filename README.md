@@ -24,8 +24,6 @@ To use this application in your telegram group, you must first complete followin
 
 **This application is in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
 
-_As alternative to teamup you can also use [dit-calendar](https://github.com/dit-calendar/dit-calendar.github.io)_
-
 ### how to update
 After this program is deployed to heroku **it will not be updated automatically!** If you are interested in more features, you should check out [new releases](https://github.com/dit-calendar/teamup-telegram-bot/releases) from time to time.
 
