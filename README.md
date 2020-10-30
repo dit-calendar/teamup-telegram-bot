@@ -2,6 +2,8 @@
 
 This is a tool to allow user-event assignment via [telegram](https://telegram.org/) for the [teamup calendar](https://www.teamup.com/). It designed to help (public/collective/participatory/collaborative) groups with self-administration of work.
 
+> :octocat: Alternatively, [other calendars](https://github.com/dit-calendar/dit-calendar.github.io) are also supported.
+
 after you created an event in your teamup calendar
 
 <img src="doc/img/teamup-calendar.png" height="400"/>
