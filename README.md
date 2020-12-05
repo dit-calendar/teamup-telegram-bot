@@ -7,7 +7,7 @@ This is a tool to allow user-event assignment via [telegram](https://telegram.or
 after you created an event in your teamup calendar
 
 <img src="doc/img/teamup-calendar.png" height="400"/>
-you can post it in your telegram group/channel, so a person can assign hirself
+post it in your telegram group/channel, so a person can assign hirself
 <img src="doc/img/telegram-bot.gif" alt="telegram-gif"/>
 
 
