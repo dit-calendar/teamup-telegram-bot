@@ -4,6 +4,7 @@ import com.ditcalendar.bot.config.config
 import com.ditcalendar.bot.config.teamup_calendar_key
 import com.ditcalendar.bot.config.teamup_token
 import com.ditcalendar.bot.config.teamup_url
+import com.ditcalendar.bot.service.stringToDate
 import com.ditcalendar.bot.teamup.data.Event
 import com.ditcalendar.bot.teamup.data.Events
 import com.github.kittinunf.fuel.httpGet
@@ -26,11 +27,16 @@ class EventEndpoint {
     private val teamupCalendarKey = config[teamup_calendar_key]
 
     fun findEvents(subcalendarId: Int, startDate: String, endDate: String): Result<Events, Exception> =
-            "$teamupUrl/$teamupCalendarKey/events?startDate=$startDate&endDate=${endDate}T04:00:00&subcalendarId[]=$subcalendarId"
+            "$teamupUrl/$teamupCalendarKey/events?startDate=$startDate&endDate=${endDate}&subcalendarId[]=$subcalendarId"
                     .httpGet()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
                     .responseObject(loader = Events.serializer(), json = json)
                     .third
+                    .map {
+                        Events(it.events.filter { event ->
+                            event.endDate.before(stringToDate("${endDate}T04:00:00"))
+                        })
+                    }
 
     fun getEvent(eventId: String): Result<Event, Exception> =
             "$teamupUrl/$teamupCalendarKey/events/$eventId"
