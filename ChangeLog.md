@@ -1,3 +1,7 @@
+# v0.9.2
+* allow spaces in subcalendar names
+* allow - in subcalendar names
+
 # v0.9.1
 * change some text messages
 
