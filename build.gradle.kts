@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dit-calendar"
-version = "0.9.1-SNAPSHOT"
+version = "0.9.2"
 
 plugins {
     val kotlinVersion = "1.3.72"
