@@ -64,7 +64,7 @@ fun TelegramTaskAssignments.toMarkdown(): String = System.lineSeparator() +
 
 fun SubCalendar.toMarkdown(): String {
     return """
-            *$name* \- ${startDate!!.withMDEscape()}${System.lineSeparator()}
+            *${name.withMDEscape()}* \- ${startDate!!.withMDEscape()}${System.lineSeparator()}
         """.trimIndent() + tasks.toMarkdown()
 }
 
