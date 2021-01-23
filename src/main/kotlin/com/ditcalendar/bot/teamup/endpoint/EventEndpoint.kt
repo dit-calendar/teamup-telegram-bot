@@ -14,13 +14,12 @@ import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 class EventEndpoint {
 
     private val config by config()
 
-    private val json = Json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true))
+    private val json = Json { ignoreUnknownKeys = true }
 
     private val teamupUrl = config[teamup_url]
     private val teamupToken = config[teamup_token]
@@ -30,7 +29,7 @@ class EventEndpoint {
             "$teamupUrl/$teamupCalendarKey/events?startDate=$startDate&endDate=${endDate}&subcalendarId[]=$subcalendarId"
                     .httpGet()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
-                    .responseObject(loader = Events.serializer(), json = json)
+                    .responseObject<Events>(json = json)
                     .third
                     .map {
                         Events(it.events.filter { event ->
@@ -42,7 +41,7 @@ class EventEndpoint {
             "$teamupUrl/$teamupCalendarKey/events/$eventId"
                     .httpGet()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken), Pair("Accept", "application/json"))
-                    .responseObject(loader = EventWrappper.serializer(), json = json)
+                    .responseObject<EventWrappper>(json = json)
                     .third
                     .map { it.event }
 
@@ -50,8 +49,8 @@ class EventEndpoint {
             "$teamupUrl/$teamupCalendarKey/events/${task.id}"
                     .httpPut()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken), Pair("Content-Type", "application/json"), Pair("Accept", "application/json"))
-                    .body(json.stringify(Event.serializer(), task))
-                    .responseObject(loader = EventWrappper.serializer(), json = json)
+                    .body(json.encodeToString(Event.serializer(), task))
+                    .responseObject<EventWrappper>(json = json)
                     .third
                     .map { it.event }
 

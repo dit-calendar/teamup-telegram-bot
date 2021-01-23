@@ -4,7 +4,7 @@ group = "dit-calendar"
 version = "0.9.2"
 
 plugins {
-    val kotlinVersion = "1.3.72"
+    val kotlinVersion = "1.4.21"
 
     application
 
@@ -27,20 +27,19 @@ repositories {
 }
 
 dependencies {
-    val fuelVersion = "2.2.3"
-    val kittinunfResultVersion = "3.0.0"
+    val fuelVersion = "2.3.1"
+    val kittinunfResultVersion = "4.0.0"
     val konfigVersion = "1.6.10.0"
-    val kotlinxSerializationVersion = "0.20.0"
-    val ktBotVersion = "1.3.4"
-    val exposedVersion = "0.25.1"
+    val kotlinxSerializationVersion = "1.0.1"
+    val ktBotVersion = "1.3.8"
+    val exposedVersion = "0.28.1"
     val postgresqlVersion = "42.2.2"
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
     compileOnly("com.github.kittinunf.fuel:fuel-kotlinx-serialization:$fuelVersion")
     implementation("com.github.kittinunf.fuel:fuel-coroutines:$fuelVersion")
     implementation("com.github.kittinunf.result:result:$kittinunfResultVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:$kotlinxSerializationVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
     implementation("com.github.elbekd:kt-telegram-bot:$ktBotVersion")
     implementation("com.natpryce:konfig:$konfigVersion")
 

@@ -15,13 +15,12 @@ import com.github.kittinunf.result.flatMap
 import com.github.kittinunf.result.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 class CalendarEndpoint {
 
     private val config by config()
 
-    private val json = Json(JsonConfiguration.Stable.copy(ignoreUnknownKeys = true))
+    private val json = Json { ignoreUnknownKeys = true }
 
     private val teamupUrl = config[teamup_url]
     private val teamupToken = config[teamup_token]
@@ -31,7 +30,7 @@ class CalendarEndpoint {
             "$teamupUrl/$teamupCalendarKey/subcalendars/$id"
                     .httpGet()
                     .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
-                    .responseObject(loader = Subcalendar.serializer(), json = json)
+                    .responseObject<Subcalendar>(json = json)
                     .third
                     .map { it.subcalendar }
 
@@ -40,7 +39,7 @@ class CalendarEndpoint {
         val subcalendars = "$teamupUrl/$teamupCalendarKey/subcalendars"
                 .httpGet()
                 .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
-                .responseObject(loader = Subcalendars.serializer(), json = json)
+                .responseObject<Subcalendars>(json = json)
                 .third
 
         return subcalendars

@@ -5,7 +5,7 @@ import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.domain.data.MultipleSubcalendarsFound
 import com.ditcalendar.bot.domain.data.NoSubcalendarFound
 import com.github.kittinunf.fuel.core.FuelError
-import kotlinx.serialization.json.JsonDecodingException
+import kotlinx.serialization.SerializationException
 
 const val reloadButtonText = "reload"
 const val calendarReloadCallbackNotification = "calendar was reloaded"
@@ -18,7 +18,7 @@ fun parseErrorToString(error: Exception): String =
                     403 -> "Bot is missing necessary access rights"
                     404 -> "calendar or task not found"
                     503 -> "server not reachable, try again in a moment"
-                    else -> if (error.cause is JsonDecodingException) {
+                    else -> if (error.cause is SerializationException) {
                         "unexpected server response"
                     } else if (error.message != null)
                         "Error: " + error.message.toString()
