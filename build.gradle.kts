@@ -15,7 +15,7 @@ plugins {
 }
 
 application {
-    mainClassName = "com.ditcalendar.bot.BotKt"
+    mainClass.set("com.ditcalendar.bot.BotKt")
 }
 
 repositories {
