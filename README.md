@@ -1,4 +1,4 @@
-# teamup-telegram-bot [![Build Status](https://travis-ci.org/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.org/dit-calendar/teamup-telegram-bot)
+# teamup-telegram-bot [![Build Status](https://travis-ci.com/dit-calendar/teamup-telegram-bot.svg?branch=master)](https://travis-ci.com/dit-calendar/teamup-telegram-bot)
 
 This bot lets you post events (tasks or room bookings) from the the [teamup calendar](https://www.teamup.com/) into a [telegram](https://telegram.org/) chat group, so people can sign up for them. It's designed to help (public/collective/participatory/collaborative) groups to organize work.
 
