@@ -36,11 +36,7 @@ class CalendarEndpoint {
 
     fun findSubcalendar(subCalendarName: String): Result<SubCalendar, Exception> {
 
-        val subcalendars = "$teamupUrl/$teamupCalendarKey/subcalendars"
-                .httpGet()
-                .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
-                .responseObject<Subcalendars>(json = json)
-                .third
+        val subcalendars = findSubcalendars()
 
         return subcalendars
                 .map { it.subcalendars.filter { calendar -> calendar.name == subCalendarName } }
@@ -52,6 +48,13 @@ class CalendarEndpoint {
                     }
                 }
     }
+
+    fun findSubcalendars(): Result<Subcalendars, Exception> =
+            "$teamupUrl/$teamupCalendarKey/subcalendars"
+                    .httpGet()
+                    .header(Pair(TEAMUP_TOKEN_HEADER, teamupToken))
+                    .responseObject<Subcalendars>(json = json)
+                    .third
 
     //Wrapper
     @Serializable

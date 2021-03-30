@@ -69,7 +69,7 @@ class CommandExecution(private val calendarService: CalendarService) {
                     calendarService.getCalendarAndTask(subCalendarName, startDate, endDate, msg.chat.id, msg.message_id)
                             .map { listOf(it) }
                 else
-                    Result.of { listOf() }
+                    calendarService.getCalendarsAndTasks(startDate, endDate, msg.chat.id, msg.message_id)
             } else
                 Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
