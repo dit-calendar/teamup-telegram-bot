@@ -3,7 +3,7 @@ package com.ditcalendar.bot
 import com.ditcalendar.bot.config.*
 import com.ditcalendar.bot.domain.createDB
 import com.ditcalendar.bot.domain.dao.find
-import com.ditcalendar.bot.domain.dao.findByMessageId
+import com.ditcalendar.bot.domain.dao.findByMessageIdAndSubcalendarId
 import com.ditcalendar.bot.domain.dao.updateMessageId
 import com.ditcalendar.bot.domain.data.InvalidRequest
 import com.ditcalendar.bot.service.*
@@ -14,6 +14,7 @@ import com.elbekD.bot.Bot
 import com.elbekD.bot.server
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.failure
 import com.github.kittinunf.result.success
 
 val helpMessage =
@@ -53,9 +54,16 @@ fun main(args: Array<String>) {
         checkGlobalStateBeforeHandling(msg.message_id.toString()) {
             if (opts != null) {
                 val response = commandExecution.executePublishCalendarCommand(opts.removePrefix(BOT_COMMAND_POST_CALENDAR), msg)
-                response.success { bot.deleteMessage(msg.chat.id, msg.message_id) }
-                val messageResponse = bot.commandResponse(response, msg.chat.id)
-                messageResponse.thenApply { findByMessageId(msg.message_id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) } }
+                response.success {
+                    bot.deleteMessage(msg.chat.id, msg.message_id)
+                    it.forEach { subcalendar ->
+                        val messageResponse = bot.commandResponse(Result.of { subcalendar }, msg.chat.id)
+                        messageResponse.thenApply {
+                            findByMessageIdAndSubcalendarId(msg.message_id, subcalendar.id)?.let { metaInfo -> updateMessageId(metaInfo, it.message_id) }
+                        }
+                    }
+                }
+                response.failure { bot.commandResponse(Result.error(it), msg.chat.id) }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }

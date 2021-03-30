@@ -11,6 +11,7 @@ import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.map
 
 const val assignDeepLinkCommand = "assign_"
 const val unassignCallbackCommand = "unassign_"
@@ -52,20 +53,23 @@ class CommandExecution(private val calendarService: CalendarService) {
             Result.error(InvalidRequest())
     }
 
-    fun executePublishCalendarCommand(opts: String, msg: Message): Result<SubCalendar, Exception> {
+    fun executePublishCalendarCommand(opts: String, msg: Message): Result<List<SubCalendar>, Exception> {
         val splitOnDate = opts.split(Regex("\\d{4}-\\d{2}-\\d{2}"))
         val variablesAfterCalendarName = opts.removePrefix(splitOnDate.first()).split(" ")
         val subCalendarName = splitOnDate.first().trimEnd()
         val startDate = variablesAfterCalendarName.getOrNull(0)
         var endDate = variablesAfterCalendarName.getOrNull(1)
 
-        return if (subCalendarName.isNotBlank() && startDate != null) {
-
+        return if (startDate != null) {
             if (isDateInputValid(startDate, endDate)) {
                 if (endDate == null)
                     endDate = nextDayAfterMidnight(startDate)
 
-                calendarService.getCalendarAndTask(subCalendarName, startDate, endDate, msg.chat.id, msg.message_id)
+                if (subCalendarName.isNotBlank())
+                    calendarService.getCalendarAndTask(subCalendarName, startDate, endDate, msg.chat.id, msg.message_id)
+                            .map { listOf(it) }
+                else
+                    Result.of { listOf() }
             } else
                 Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
