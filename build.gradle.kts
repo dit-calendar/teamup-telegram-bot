@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dit-calendar"
-version = "0.9.2"
+version = "0.9.3"
 
 application {
     mainClass.set("com.ditcalendar.bot.BotKt")
