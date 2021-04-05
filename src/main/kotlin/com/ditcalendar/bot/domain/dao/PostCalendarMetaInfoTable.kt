@@ -15,7 +15,7 @@ object PostCalendarMetaInfoTable : IntIdTable() {
 }
 
 fun findOrCreate(newChatId: Long, msgUserId: Int, subCalendar: Int, start: String, end: String): PostCalendarMetaInfo = transaction {
-    val result = PostCalendarMetaInfo.find { PostCalendarMetaInfoTable.messageId eq msgUserId }
+    val result = PostCalendarMetaInfo.find { (PostCalendarMetaInfoTable.messageId eq msgUserId) and (PostCalendarMetaInfoTable.subCalendarId eq subCalendar) }
     if (result.count() == 0L) {
         PostCalendarMetaInfo.new {
             chatId = newChatId
