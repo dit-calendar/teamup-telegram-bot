@@ -22,6 +22,11 @@
     },
     "TEAMUP_CALENDAR_KEY": {
       "description": "last part of your teamup calendar url. e.g. xxxxxXXXxxxxXX for https://teamup.com/xxxxxXXXxxxxXX"
+    },
+    "POST_CALENDAR_WITHOUT_SUBCALENDAR_NAME": {
+      "description": "allow to post calendar without passing a subcalendar name. Enable this feature only if you are aware of possible security risk",
+      "value": "false",
+      "required": false
     }
   }
 }

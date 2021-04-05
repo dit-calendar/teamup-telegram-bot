@@ -1,5 +1,7 @@
 package com.ditcalendar.bot.service
 
+import com.ditcalendar.bot.config.config
+import com.ditcalendar.bot.config.post_calendar_without_subcalendar_name
 import com.ditcalendar.bot.domain.dao.findOrCreate
 import com.ditcalendar.bot.domain.dao.updateName
 import com.ditcalendar.bot.domain.data.InvalidRequest
@@ -20,6 +22,10 @@ const val assingWithNameCallbackCommand = "assignme_"
 const val assingAnnonCallbackCommand = "assignmeAnnon_"
 
 class CommandExecution(private val calendarService: CalendarService) {
+
+    private val config by config()
+
+    private val postCalendarWithoutSubcalendarName = config[post_calendar_without_subcalendar_name]
 
     fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
@@ -60,8 +66,8 @@ class CommandExecution(private val calendarService: CalendarService) {
         val startDate = variablesAfterCalendarName.getOrNull(0)
         var endDate = variablesAfterCalendarName.getOrNull(1)
 
-        return if (startDate != null) {
-            if (isDateInputValid(startDate, endDate)) {
+        return if (validatePostcalendarRequest(startDate, subCalendarName)) {
+            if (isDateInputValid(startDate!!, endDate)) {
                 if (endDate == null)
                     endDate = nextDayAfterMidnight(startDate)
 
@@ -87,6 +93,9 @@ class CommandExecution(private val calendarService: CalendarService) {
             calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, postCalendarMetaInfo)
         } else Result.error(InvalidRequest())
     }
+
+    private fun validatePostcalendarRequest(startDate: String?, subCalendarName: String) =
+            startDate != null && (postCalendarWithoutSubcalendarName || subCalendarName.isNotBlank())
 
     fun reloadCalendar(postCalendarMetaInfo: PostCalendarMetaInfo?): Result<SubCalendar, Exception> {
         return if (postCalendarMetaInfo != null)
