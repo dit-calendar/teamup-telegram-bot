@@ -24,6 +24,14 @@ class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                         it.fillWithTasks(startDate, endDate, postCalendarMetaInfo)
                     }
 
+    fun getCalendarsAndTasks(startDate: String, endDate: String, chatId: Long, messageId: Int): Result<List<SubCalendar>, Exception> =
+            calendarEndpoint.findSubcalendars().map { subcalendars ->
+                subcalendars.subcalendars.map { subcalendar ->
+                    val postCalendarMetaInfo = findOrCreate(chatId, messageId, subcalendar.id, startDate, endDate)
+                    subcalendar.fillWithTasks(startDate, endDate, postCalendarMetaInfo)
+                }.filter { it.tasks.isNotEmpty() }
+            }
+
     fun getCalendarAndTask(id: Int, startDate: String, endDate: String, postCalendarMetaInfo: PostCalendarMetaInfo): Result<SubCalendar, Exception> =
             calendarEndpoint.findSubcalendar(id)
                     .map { it.fillWithTasks(startDate, endDate, postCalendarMetaInfo) }

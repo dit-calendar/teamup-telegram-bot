@@ -1,5 +1,7 @@
 package com.ditcalendar.bot.service
 
+import com.ditcalendar.bot.config.config
+import com.ditcalendar.bot.config.post_calendar_without_subcalendar_name
 import com.ditcalendar.bot.domain.dao.findOrCreate
 import com.ditcalendar.bot.domain.dao.updateName
 import com.ditcalendar.bot.domain.data.InvalidRequest
@@ -11,6 +13,7 @@ import com.ditcalendar.bot.teamup.data.SubCalendar
 import com.ditcalendar.bot.teamup.data.core.Base
 import com.elbekD.bot.types.Message
 import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.map
 
 const val assignDeepLinkCommand = "assign_"
 const val unassignCallbackCommand = "unassign_"
@@ -19,6 +22,10 @@ const val assingWithNameCallbackCommand = "assignme_"
 const val assingAnnonCallbackCommand = "assignmeAnnon_"
 
 class CommandExecution(private val calendarService: CalendarService) {
+
+    private val config by config()
+
+    private val postCalendarWithoutSubcalendarName = config[post_calendar_without_subcalendar_name]
 
     fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
@@ -52,20 +59,23 @@ class CommandExecution(private val calendarService: CalendarService) {
             Result.error(InvalidRequest())
     }
 
-    fun executePublishCalendarCommand(opts: String, msg: Message): Result<SubCalendar, Exception> {
+    fun executePublishCalendarCommand(opts: String, msg: Message): Result<List<SubCalendar>, Exception> {
         val splitOnDate = opts.split(Regex("\\d{4}-\\d{2}-\\d{2}"))
         val variablesAfterCalendarName = opts.removePrefix(splitOnDate.first()).split(" ")
         val subCalendarName = splitOnDate.first().trimEnd()
         val startDate = variablesAfterCalendarName.getOrNull(0)
         var endDate = variablesAfterCalendarName.getOrNull(1)
 
-        return if (subCalendarName.isNotBlank() && startDate != null) {
-
-            if (isDateInputValid(startDate, endDate)) {
+        return if (validatePostcalendarRequest(startDate, subCalendarName)) {
+            if (isDateInputValid(startDate!!, endDate)) {
                 if (endDate == null)
                     endDate = nextDayAfterMidnight(startDate)
 
-                calendarService.getCalendarAndTask(subCalendarName, startDate, endDate, msg.chat.id, msg.message_id)
+                if (subCalendarName.isNotBlank())
+                    calendarService.getCalendarAndTask(subCalendarName, startDate, endDate, msg.chat.id, msg.message_id)
+                            .map { listOf(it) }
+                else
+                    calendarService.getCalendarsAndTasks(startDate, endDate, msg.chat.id, msg.message_id)
             } else
                 Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
@@ -83,6 +93,9 @@ class CommandExecution(private val calendarService: CalendarService) {
             calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, postCalendarMetaInfo)
         } else Result.error(InvalidRequest())
     }
+
+    private fun validatePostcalendarRequest(startDate: String?, subCalendarName: String) =
+            startDate != null && (postCalendarWithoutSubcalendarName || subCalendarName.isNotBlank())
 
     fun reloadCalendar(postCalendarMetaInfo: PostCalendarMetaInfo?): Result<SubCalendar, Exception> {
         return if (postCalendarMetaInfo != null)

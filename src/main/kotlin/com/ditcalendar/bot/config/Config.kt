@@ -25,3 +25,5 @@ val heroku_app_name = Key("heroku.app.name", stringType)
 val teamup_url = Key("teamup.url", stringType)
 val teamup_token = Key("teamup.token", stringType)
 val teamup_calendar_key = Key("teamup.calendar.key", stringType)
+
+val post_calendar_without_subcalendar_name = Key("post.calendar.without.subcalendar.name", booleanType)
