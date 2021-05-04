@@ -21,6 +21,7 @@ To use this application in your telegram group, you must first complete followin
     [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/dit-calendar/teamup-telegram-bot/tree/master) _(you need an account but it's free)_
    * it will build&start the program from the current source code
 4. invite the new Bot to a telegram group/channel and post `/postcalendar CalendarName Date` e.g. `/postcalendar VeKü 2020-08-26`
+   * note that in a channel your bot needs permissions to post like any user
 
 **This application is in beta** and will be further developed after some [feedback](https://github.com/dit-calendar/teamup-telegram-bot/issues) from you.
 
