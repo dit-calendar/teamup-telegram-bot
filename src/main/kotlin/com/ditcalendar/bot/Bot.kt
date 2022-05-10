@@ -25,6 +25,7 @@ val helpMessage =
         """.trimIndent()
 
 const val BOT_COMMAND_POST_CALENDAR = "/postcalendar"
+const val BOT_COMMAND_CHANGE_USER_NAME = "/changemyname"
 
 fun main(args: Array<String>) {
 
@@ -108,11 +109,7 @@ fun main(args: Array<String>) {
                 response.success {
                     if (request.startsWith(assingWithNameCallbackCommand) || request.startsWith(assingAnnonCallbackCommand)
                             || request.startsWith(unassignCallbackCommand)) {
-                        val optsAfterTaskId = request
-                                .removePrefix(assingWithNameCallbackCommand)
-                                .removePrefix(assingAnnonCallbackCommand)
-                                .removePrefix(unassignCallbackCommand)
-                                .substringAfter("_")
+                        val optsAfterTaskId = request.removeCommandInlines()
 
                         reloadOldMessage(optsAfterTaskId)
                     }
@@ -145,6 +142,19 @@ fun main(args: Array<String>) {
         }
     }
 
+    bot.onCommand(BOT_COMMAND_CHANGE_USER_NAME) { msg, opts ->
+        checkGlobalStateBeforeHandling(msg.message_id.toString()) {
+            val msgUser = msg.from
+            //if message user is not set, we can't process
+            if (msgUser == null || opts == null) {
+                bot.sendMessage(msg.chat.id, wrongRequestResponse)
+            } else {
+                commandExecution.executeRenameUserCommand(msg.chat.id, msgUser.id, opts)
+                bot.sendMessage(msg.chat.id, "rename successful")
+            }
+        }
+    }
+
     bot.onCommand(BOT_COMMAND_POST_CALENDAR) { msg, opts ->
         postCalendarCommand(msg, opts)
     }
@@ -157,3 +167,9 @@ fun main(args: Array<String>) {
 
     bot.start()
 }
+
+private fun String.removeCommandInlines() =
+    removePrefix(assingWithNameCallbackCommand)
+        .removePrefix(assingAnnonCallbackCommand)
+        .removePrefix(unassignCallbackCommand)
+        .substringAfter("_")

@@ -27,6 +27,11 @@ class CommandExecution(private val calendarService: CalendarService) {
 
     private val postCalendarWithoutSubcalendarName = config[post_calendar_without_subcalendar_name]
 
+    fun executeRenameUserCommand(chatId: Long, msgUserId: Long, customUserName: String) {
+        val telegramLink = findOrCreate(chatId, msgUserId)
+        updateName(telegramLink, customUserName)
+    }
+
     fun executeCallback(chatId: Long, msgUserId: Long, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
                 val taskId: String = callbaBackData.substringAfter(unassignCallbackCommand).substringBefore("_")
