@@ -17,8 +17,8 @@ fun addUserToWho(oldWho: String?, telegramLinkUserId: String): String =
             else -> "$telegramLinkUserId;$oldWho"
         }
 
-fun parseWhoToIds(who: String?): List<Int> =
+fun parseWhoToIds(who: String?): List<Long> =
         if (who.isNullOrBlank()) listOf()
         else who.split(";")
                 .filter { it.isNotBlank() }
-                .mapNotNull { it.toIntOrNull() }
+                .mapNotNull { it.toLongOrNull() }

@@ -27,7 +27,7 @@ class CommandExecution(private val calendarService: CalendarService) {
 
     private val postCalendarWithoutSubcalendarName = config[post_calendar_without_subcalendar_name]
 
-    fun executeCallback(chatId: Int, msgUserId: Int, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
+    fun executeCallback(chatId: Long, msgUserId: Long, msgUserFirstName: String, callbaBackData: String, msg: Message): Result<Base, Exception> =
             if (callbaBackData.startsWith(unassignCallbackCommand)) {
                 val taskId: String = callbaBackData.substringAfter(unassignCallbackCommand).substringBefore("_")
                 if (taskId.isNotBlank()) {
@@ -35,7 +35,7 @@ class CommandExecution(private val calendarService: CalendarService) {
                     val telegramLink = findOrCreate(chatId, msgUserId)
                     calendarService.unassignUserFromTask(taskId, telegramLink)
                 } else
-                    Result.error(InvalidRequest())
+                    Result.failure(InvalidRequest())
             } else if (callbaBackData.startsWith(reloadCallbackCommand)) {
                 reloadCalendar(callbaBackData.substringAfter(reloadCallbackCommand), msg.chat.id, msg.message_id)
             } else if (callbaBackData.startsWith(assingWithNameCallbackCommand)) {
@@ -47,7 +47,7 @@ class CommandExecution(private val calendarService: CalendarService) {
                 telegramLink = updateName(telegramLink, null)
                 executeTaskAssignmentCommand(telegramLink, callbaBackData)
             } else
-                Result.error(InvalidRequest())
+                Result.failure(InvalidRequest())
 
     private fun executeTaskAssignmentCommand(telegramLink: TelegramLink, opts: String): Result<TelegramTaskForUnassignment, Exception> {
         val variables = opts.substringAfter("_").split("_")
@@ -56,7 +56,7 @@ class CommandExecution(private val calendarService: CalendarService) {
         return if (taskId != null && taskId.isNotBlank() && metaInfoId != null)
             calendarService.assignUserToTask(taskId, telegramLink, metaInfoId)
         else
-            Result.error(InvalidRequest())
+            Result.failure(InvalidRequest())
     }
 
     fun executePublishCalendarCommand(opts: String, msg: Message): Result<List<SubCalendar>, Exception> {
@@ -77,12 +77,12 @@ class CommandExecution(private val calendarService: CalendarService) {
                 else
                     calendarService.getCalendarsAndTasks(startDate, endDate, msg.chat.id, msg.message_id)
             } else
-                Result.error(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
+                Result.failure(InvalidRequest("Dateformat sholud be yyyy-MM-dd e.g. 2015-12-31"))
 
-        } else Result.error(InvalidRequest(helpMessage))
+        } else Result.failure(InvalidRequest(helpMessage))
     }
 
-    private fun reloadCalendar(opts: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> {
+    private fun reloadCalendar(opts: String, chatId: Long, messageId: Long): Result<SubCalendar, Exception> {
         val variables = opts.split("_")
         val subCalendarId = variables.getOrNull(0)?.toIntOrNull()
         val startDate = variables.getOrNull(1)
@@ -91,7 +91,7 @@ class CommandExecution(private val calendarService: CalendarService) {
         return if (subCalendarId != null && startDate != null && endDate != null) {
             val postCalendarMetaInfo = findOrCreate(chatId, messageId, subCalendarId, startDate, endDate)
             calendarService.getCalendarAndTask(subCalendarId, startDate, endDate, postCalendarMetaInfo)
-        } else Result.error(InvalidRequest())
+        } else Result.failure(InvalidRequest())
     }
 
     private fun validatePostcalendarRequest(startDate: String?, subCalendarName: String) =
@@ -100,6 +100,6 @@ class CommandExecution(private val calendarService: CalendarService) {
     fun reloadCalendar(postCalendarMetaInfo: PostCalendarMetaInfo?): Result<SubCalendar, Exception> {
         return if (postCalendarMetaInfo != null)
             calendarService.getCalendarAndTask(postCalendarMetaInfo.subCalendarId, postCalendarMetaInfo.startDate, postCalendarMetaInfo.endDate, postCalendarMetaInfo)
-        else Result.error(InvalidRequest())
+        else Result.failure(InvalidRequest())
     }
 }

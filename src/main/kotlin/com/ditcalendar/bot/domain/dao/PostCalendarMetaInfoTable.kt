@@ -8,13 +8,13 @@ import org.jetbrains.exposed.sql.update
 
 object PostCalendarMetaInfoTable : IntIdTable() {
     val chatId = long("chatId")
-    var messageId = integer("messageId").index()
+    var messageId = long("messageId").index()
     val subCalendarId = integer("subCalendarId")
     val startDate = varchar("startDate", 50)
     val endDate = varchar("endDate", 50)
 }
 
-fun findOrCreate(newChatId: Long, msgUserId: Int, subCalendar: Int, start: String, end: String): PostCalendarMetaInfo = transaction {
+fun findOrCreate(newChatId: Long, msgUserId: Long, subCalendar: Int, start: String, end: String): PostCalendarMetaInfo = transaction {
     val result = PostCalendarMetaInfo.find { (PostCalendarMetaInfoTable.messageId eq msgUserId) and (PostCalendarMetaInfoTable.subCalendarId eq subCalendar) }
     if (result.count() == 0L) {
         PostCalendarMetaInfo.new {
@@ -27,7 +27,7 @@ fun findOrCreate(newChatId: Long, msgUserId: Int, subCalendar: Int, start: Strin
     } else result.elementAt(0)
 }
 
-fun findByMessageIdAndSubcalendarId(id: Int, subcalendarId: Int): PostCalendarMetaInfo? = transaction {
+fun findByMessageIdAndSubcalendarId(id: Long, subcalendarId: Int): PostCalendarMetaInfo? = transaction {
     PostCalendarMetaInfo.find { (PostCalendarMetaInfoTable.messageId eq id) and (PostCalendarMetaInfoTable.subCalendarId eq subcalendarId) }
             .firstOrNull()
 }
@@ -36,7 +36,7 @@ fun find(id: Int): PostCalendarMetaInfo? = transaction {
     PostCalendarMetaInfo.findById(id)
 }
 
-fun updateMessageId(metaInfo: PostCalendarMetaInfo, newMessageUserId: Int) = transaction {
+fun updateMessageId(metaInfo: PostCalendarMetaInfo, newMessageUserId: Long) = transaction {
     PostCalendarMetaInfoTable.update({ PostCalendarMetaInfoTable.id eq metaInfo.id }) {
         it[messageId] = newMessageUserId
     }

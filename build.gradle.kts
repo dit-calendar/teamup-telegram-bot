@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "dit-calendar"
-version = "0.9.3"
+version = "0.10.0"
 
 application {
     mainClass.set("com.ditcalendar.bot.BotKt")
@@ -10,14 +10,14 @@ application {
 }
 
 plugins {
-    val kotlinVersion = "1.6.20"
+    val kotlinVersion = "1.6.21"
 
     application
 
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
 
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 repositories {
@@ -30,11 +30,11 @@ repositories {
 
 dependencies {
     val fuelVersion = "2.3.1"
-    val kittinunfResultVersion = "4.0.0"
+    val kittinunfResultVersion = "5.2.1"
     val konfigVersion = "1.6.10.0"
-    val kotlinxSerializationVersion = "1.0.1"
-    val ktBotVersion = "1.3.8"
-    val exposedVersion = "0.28.1"
+    val kotlinxSerializationVersion = "1.3.2"
+    val ktBotVersion = "1.4.1"
+    val exposedVersion = "0.38.2"
     val postgresqlVersion = "42.2.2"
 
     implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")

@@ -9,7 +9,7 @@ class PostCalendarMetaInfo(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<PostCalendarMetaInfo>(PostCalendarMetaInfoTable)
 
     var chatId: Long by PostCalendarMetaInfoTable.chatId
-    var messageId: Int by PostCalendarMetaInfoTable.messageId
+    var messageId: Long by PostCalendarMetaInfoTable.messageId
     var subCalendarId: Int by PostCalendarMetaInfoTable.subCalendarId
     var startDate: String by PostCalendarMetaInfoTable.startDate
     var endDate: String by PostCalendarMetaInfoTable.endDate

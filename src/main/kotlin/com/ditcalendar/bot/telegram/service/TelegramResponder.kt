@@ -79,7 +79,7 @@ fun Bot.deepLinkResponse(callbackOpts: String, chatId: Long) {
     sendMessage(chatId, "Can I use your name?", parseMode, disableWebPagePreview = true, markup = inlineKeyboardMarkup)
 }
 
-fun Bot.editOriginalCalendarMessage(calendar: SubCalendar, chatId: Long, messageId: Int) {
+fun Bot.editOriginalCalendarMessage(calendar: SubCalendar, chatId: Long, messageId: Long) {
     val inlineButton = InlineKeyboardButton(reloadButtonText, callback_data = "$reloadCallbackCommand${calendar.id}_${calendar.startDate}_${calendar.endDate}")
     val inlineKeyboardMarkup = InlineKeyboardMarkup(listOf(listOf(inlineButton)))
     editMessageText(chatId, messageId, text = calendar.toMarkdown(),

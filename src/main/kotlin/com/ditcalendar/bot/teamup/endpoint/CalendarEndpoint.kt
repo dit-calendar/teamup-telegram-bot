@@ -42,8 +42,8 @@ class CalendarEndpoint {
                 .map { it.subcalendars.filter { calendar -> calendar.name == subCalendarName } }
                 .flatMap {
                     when {
-                        it.isEmpty() -> Result.error(NoSubcalendarFound(subCalendarName))
-                        it.size != 1 -> Result.error(MultipleSubcalendarsFound())
+                        it.isEmpty() -> Result.failure(NoSubcalendarFound(subCalendarName))
+                        it.size != 1 -> Result.failure(MultipleSubcalendarsFound())
                         else -> Result.success(it[0])
                     }
                 }

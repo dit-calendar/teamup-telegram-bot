@@ -17,14 +17,14 @@ import com.github.kittinunf.result.map
 class CalendarService(private val calendarEndpoint: CalendarEndpoint,
                       private val eventEndpoint: EventEndpoint) {
 
-    fun getCalendarAndTask(subCalendarName: String, startDate: String, endDate: String, chatId: Long, messageId: Int): Result<SubCalendar, Exception> =
+    fun getCalendarAndTask(subCalendarName: String, startDate: String, endDate: String, chatId: Long, messageId: Long): Result<SubCalendar, Exception> =
             calendarEndpoint.findSubcalendar(subCalendarName)
                     .map {
                         val postCalendarMetaInfo = findOrCreate(chatId, messageId, it.id, startDate, endDate)
                         it.fillWithTasks(startDate, endDate, postCalendarMetaInfo)
                     }
 
-    fun getCalendarsAndTasks(startDate: String, endDate: String, chatId: Long, messageId: Int): Result<List<SubCalendar>, Exception> =
+    fun getCalendarsAndTasks(startDate: String, endDate: String, chatId: Long, messageId: Long): Result<List<SubCalendar>, Exception> =
             calendarEndpoint.findSubcalendars().map { subcalendars ->
                 subcalendars.subcalendars.map { subcalendar ->
                     val postCalendarMetaInfo = findOrCreate(chatId, messageId, subcalendar.id, startDate, endDate)

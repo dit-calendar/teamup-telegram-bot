@@ -11,7 +11,7 @@ typealias TelegramLinks = List<TelegramLink>
 class TelegramLink(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<TelegramLink>(TelegramLinksTable)
 
-    var chatId: Int by TelegramLinksTable.chatId
-    var telegramUserId: Int by TelegramLinksTable.telegramUserId
+    var chatId: Long by TelegramLinksTable.chatId
+    var telegramUserId: Long by TelegramLinksTable.telegramUserId
     var firstName: String? by TelegramLinksTable.firstName
 }

@@ -6,12 +6,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
 object TelegramLinksTable : IntIdTable() {
-    val chatId = integer("chatId").uniqueIndex()
-    val telegramUserId = integer("telegramUserId").uniqueIndex()
+    val chatId = long("chatId").uniqueIndex()
+    val telegramUserId = long("telegramUserId").uniqueIndex()
     val firstName = varchar("firstName", 50).nullable()
 }
 
-fun findOrCreate(newChatId: Int, msgUserId: Int): TelegramLink = transaction {
+fun findOrCreate(newChatId: Long, msgUserId: Long): TelegramLink = transaction {
     val result = TelegramLink.find { TelegramLinksTable.telegramUserId eq msgUserId }
     if (result.count() == 0L) {
         TelegramLink.new {
@@ -22,7 +22,7 @@ fun findOrCreate(newChatId: Int, msgUserId: Int): TelegramLink = transaction {
     } else result.elementAt(0)
 }
 
-fun find(msgUserIds: List<Int>): List<TelegramLink> = transaction {
+fun find(msgUserIds: List<Long>): List<TelegramLink> = transaction {
     msgUserIds.map {
         TelegramLink.find { TelegramLinksTable.telegramUserId eq it }
                 .elementAtOrElse(0) { _ ->

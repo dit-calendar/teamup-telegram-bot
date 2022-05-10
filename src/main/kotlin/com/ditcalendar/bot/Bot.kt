@@ -63,7 +63,7 @@ fun main(args: Array<String>) {
                         }
                     }
                 }
-                response.failure { bot.commandResponse(Result.error(it), msg.chat.id) }
+                response.failure { bot.commandResponse(Result.failure(it), msg.chat.id) }
             } else bot.sendMessage(msg.chat.id, helpMessage)
         }
     }
@@ -86,7 +86,7 @@ fun main(args: Array<String>) {
             if (callbackOpts.isNotBlank()) {
                 bot.deepLinkResponse(callbackOpts, chatId)
             } else {
-                bot.commandResponse(Result.error(InvalidRequest()), chatId)
+                bot.commandResponse(Result.failure(InvalidRequest()), chatId)
             }
         } else {
             bot.sendMessage(chatId, helpMessage)
@@ -102,7 +102,7 @@ fun main(args: Array<String>) {
                 bot.answerCallbackQuery(callbackQuery.id, wrongRequestResponse)
             } else {
                 val msgUser = callbackQuery.from
-                val response = commandExecution.executeCallback(originallyMessage.chat.id.toInt(), msgUser.id, msgUser.first_name, request, originallyMessage)
+                val response = commandExecution.executeCallback(originallyMessage.chat.id, msgUser.id, msgUser.first_name, request, originallyMessage)
 
                 bot.callbackResponse(response, callbackQuery, originallyMessage)
                 response.success {
