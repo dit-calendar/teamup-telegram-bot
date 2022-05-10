@@ -10,7 +10,7 @@ application {
 }
 
 plugins {
-    val kotlinVersion = "1.4.21"
+    val kotlinVersion = "1.6.20"
 
     application
 
